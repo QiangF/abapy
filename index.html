@@ -1,0 +1,250 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Abapy Documentation &mdash; abapy 2.3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="abapy 2.3.0 documentation" href="#" />
+    <link rel="next" title="Tutorial" href="tutorial.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">abapy 2.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-abapy"></span><div class="section" id="abapy-documentation">
+<h1>Abapy Documentation<a class="headerlink" href="#abapy-documentation" title="Permalink to this headline">¶</a></h1>
+<dl class="docutils">
+<dt>Abaqus Python &#8220;<strong>AbaPy</strong>&#8221; contains tools to build, postprocess and plot automatic finite element simulations using Abaqus. It is divided into four parts:</dt>
+<dd><ul class="first last simple">
+<li><em>mesh</em>: contains finite element mesh utilities allowing building, modifying, ploting and exporting to various formats.</li>
+<li><em>postproc</em>: contains utilities to read in Abaqus odb files and represent history and field outputs using custom classes. These classes allow easy calculations, export, storage (using pickle/cPickle).</li>
+<li><em>materials</em>: contains functions to preprocess materials before finite element simulations.</li>
+<li><em>indentation</em>: contains all indentation dedicated tools.</li>
+<li><em>advanced_examples</em>: contains examples using abapy and other python packages to perform research higher level tasks.</li>
+</ul>
+</dd>
+</dl>
+<p>(<a class="reference external" href="./example_code/logo/abapy_logo.py">Source code</a>, <a class="reference external" href="./example_code/logo/abapy_logo.png">png</a>, <a class="reference external" href="./example_code/logo/abapy_logo.hires.png">hires.png</a>, <a class="reference external" href="./example_code/logo/abapy_logo.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/abapy_logo.png" src="_images/abapy_logo.png" />
+</div>
+<p><em>Code author: Ludovic Charleux &lt;<a class="reference external" href="mailto:ludovic&#46;charleux&#37;&#52;&#48;univ-savoie&#46;fr">ludovic<span>&#46;</span>charleux<span>&#64;</span>univ-savoie<span>&#46;</span>fr</a>&gt;</em></p>
+<dl class="docutils">
+<dt>Installation can be performed easily by:</dt>
+<dd><ul class="first last simple">
+<li>Dirty method: copy the whole spym directory in the directory as your script using it, it will work. In fact Python first looks for modules in the current directory. This method</li>
+<li>Better method:<ul>
+<li>copying the module where you want to.</li>
+<li>add the module directory to python module search path by creating a <tt class="docutils literal"><span class="pre">.profile</span></tt> file in your home directory and containing <tt class="docutils literal"><span class="pre">export</span> <span class="pre">PYTHONPATH=path</span></tt>. Where <tt class="docutils literal"><span class="pre">path</span></tt> is the absolute address of the directory containing the abapy directory.</li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+</div>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#first-example">First example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#fancier-example">Fancier example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mesh.html">Mesh</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mesh.html#nodes">Nodes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#add-remove-get-data">Add/remove/get data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#modifications">Modifications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#export">Export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#tools">Tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mesh.html#id1">Mesh</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#id2">Add/remove/get data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#id3">Modifications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#id4">Export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#ploting-tools">Ploting tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mesh.html#mesh-generation">Mesh generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mesh.html#regularquadmesh-functions"><tt class="docutils literal"><span class="pre">RegularQuadMesh</span></tt> functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="materials.html">Materials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="materials.html#elastic-materials">Elastic materials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="materials.html#elastic-plastic-materials">Elastic-plastic materials</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="postproc.html">Post Processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="postproc.html#field-outputs">Field Outputs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="postproc.html#scalar-fields">Scalar fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="postproc.html#vector-fields">Vector fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="postproc.html#tensor-fields">Tensor fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="postproc.html#getting-field-outputs-from-an-abaqus-odb">Getting field outputs from an Abaqus ODB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="postproc.html#zerofieldoutput-like"><tt class="docutils literal"><span class="pre">ZeroFieldOutput_like</span></tt></a></li>
+<li class="toctree-l3"><a class="reference internal" href="postproc.html#onefieldoutput-like"><tt class="docutils literal"><span class="pre">OneFieldOutput_like</span></tt></a></li>
+<li class="toctree-l3"><a class="reference internal" href="postproc.html#identity-like"><tt class="docutils literal"><span class="pre">Identity_like</span></tt></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="postproc.html#history-outputs">History Outputs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="postproc.html#historyoutput-class"><tt class="docutils literal"><span class="pre">HistoryOutput</span></tt> class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="postproc.html#gethistoryoutputbykey-function"><tt class="docutils literal"><span class="pre">GetHistoryOutputByKey</span></tt> function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="postproc.html#mesh">Mesh</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="postproc.html#getmesh-function"><tt class="docutils literal"><span class="pre">GetMesh</span></tt> function</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="indentation.html">Indentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="indentation.html#indentation-meshes">Indentation meshes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="indentation.html#paraminfinitemesh-function"><tt class="docutils literal"><span class="pre">ParamInfiniteMesh</span></tt> function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="indentation.html#indentationmesh-function"><tt class="docutils literal"><span class="pre">IndentationMesh</span></tt> function</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="indentation.html#indenters">Indenters</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="indentation.html#rigidcone2d-class"><tt class="docutils literal"><span class="pre">RigidCone2D</span></tt> class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="indentation.html#deformablecone2d-class"><tt class="docutils literal"><span class="pre">DeformableCone2D</span></tt> class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="indentation.html#deformablecone3d-class"><tt class="docutils literal"><span class="pre">DeformableCone3D</span></tt> class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="indentation.html#indenter-miscellaneous">Indenter miscellaneous</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="indentation.html#simulation-tools">Simulation tools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="indentation.html#steps-definition">Steps definition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="indentation.html#inp-builder">Inp builder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="indentation.html#simulation-manager">Simulation manager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="indentation.html#indentation-post-processing">Indentation post-processing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="indentation.html#elasticity">Elasticity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="indentation.html#hertz">Hertz</a></li>
+<li class="toctree-l3"><a class="reference internal" href="indentation.html#hanson">Hanson</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="misc.html">Miscellaneous</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_examples.html">Advanced Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced_examples.html#indentation">Indentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="advanced_examples.html#d-3d-multi-material-indentation">2D / 3D , multi material indentation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Abapy Documentation</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="next chapter">Tutorial</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             >next</a> |</li>
+        <li><a href="#">abapy 2.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Ludovic Charleux.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

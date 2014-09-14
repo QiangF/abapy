@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tutorial &mdash; abapy 2.3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="abapy 2.3.0 documentation" href="index.html" />
+    <link rel="next" title="Mesh" href="mesh.html" />
+    <link rel="prev" title="Abapy Documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mesh.html" title="Mesh"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Abapy Documentation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">abapy 2.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<p>This tutorial introduces the main reasons to use Abapy and explains how to do so. In order to follow the tutorial, following components are required:</p>
+<ul class="simple">
+<li>Abaqus</li>
+<li>Python (2.5 or above) and its modules Numpy, Scipy, Matplotlib, SQLAlchemy.</li>
+</ul>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Indentation testing is used widely as an example in this tutorial but everything can be transposed easily to any other problem. Let&#8217;s start with an existing axisymmetric conical indentation simulations defined in the following INP file: <a class="reference download internal" href="_downloads/indentation_axi.inp"><tt class="xref download docutils literal"><span class="pre">indentation_axi.inp</span></tt></a>. The model includes following features:</p>
+<ul class="simple">
+<li>Axisymmetric solids.</li>
+<li>Conical rigid indenter.</li>
+<li>Von Mises elastic-plastic sample.</li>
+<li>Frictionless contact.</li>
+<li>Non linear geometry effects.</li>
+</ul>
+<p>The simulation can be launched directly using the command-line:</p>
+<div class="highlight-none"><div class="highlight"><pre>abaqus job=indentation-axi
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The INP file can also be imported in Abaqus/CAE through file/import/model and then by chosing .inp. Then create a job and launch it.</p>
+</div>
+<p>The simulation is normaly very fast because the meshes are rather coarse. When it is completed, you can open the resulting ODB file using abaqus viewer to have a look at it. Then, then you can start to go deeper into the ODB structure. Use a terminal or DOS shell to launch the following command:</p>
+<div class="highlight-none"><div class="highlight"><pre>abaqus viewer -noGUI
+</pre></div>
+</div>
+<p>You are now in the Python interface of Abaqus/Viewer.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The are several ways to access Python in Abaqus. <tt class="docutils literal"><span class="pre">abaqus</span> <span class="pre">python</span></tt> is the standard way, it is faster since it doesn&#8217;t require a licence token. However, you will often need packages that are not available in <tt class="docutils literal"><span class="pre">abaqus</span> <span class="pre">python</span></tt>, then you will have to use <tt class="docutils literal"><span class="pre">abaqus</span> <span class="pre">viewer</span> <span class="pre">-noGUI</span></tt> or <tt class="docutils literal"><span class="pre">abaqus</span> <span class="pre">cae</span> <span class="pre">-noGUI</span></tt> which both allow access to everything that is available in Abaqus/viewer and Abaqus/CAE.</p>
+</div>
+<p>Now that you have access to Python inside Abaqus, you can open the odb file using:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">odbAccess</span> <span class="kn">import</span> <span class="n">openOdb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb</span> <span class="o">=</span> <span class="n">openOdb</span><span class="p">(</span><span class="s">&#39;indentation_axi.odb&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then you can have a look at the structure of the odb object mainly using the <tt class="docutils literal"><span class="pre">print</span></tt> and <tt class="docutils literal"><span class="pre">dir</span></tt> commands.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">dir</span><span class="p">(</span><span class="n">odb</span><span class="p">)</span>
+<span class="go">[&#39;AcousticInfiniteSection&#39;, &#39;AcousticInterfaceSection&#39;, &#39;ArbitraryProfile&#39;, &#39;BeamSection&#39;, &#39;BoxProfile&#39;, &#39;CircularProfile&#39;, &#39;CohesiveSection&#39;, &#39;CompositeShellSection&#39;, &#39;CompositeSolidSection&#39;, &#39;ConnectorSection&#39;, &#39;DiscretePart&#39;, &#39;GasketSection&#39;, &#39;GeneralStiffnessSection&#39;, &#39;GeneralizedProfile&#39;, &#39;GeometryShellSection&#39;, &#39;HexagonalProfile&#39;, &#39;HomogeneousShellSection&#39;, &#39;HomogeneousSolidSection&#39;, &#39;IProfile&#39;, &#39;LProfile&#39;, &#39;Material&#39;, &#39;MembraneSection&#39;, &#39;PEGSection&#39;, &#39;Part&#39;, &#39;PipeProfile&#39;, &#39;RectangularProfile&#39;, &#39;Section&#39;, &#39;SectionCategory&#39;, &#39;Step&#39;, &#39;SurfaceSection&#39;, &#39;TProfile&#39;, &#39;TrapezoidalProfile&#39;, &#39;TrussSection&#39;, &#39;UserXYData&#39;, &#39;__class__&#39;, &#39;__cmp__&#39;, &#39;__delattr__&#39;, &#39;__doc__&#39;, &#39;__getattribute__&#39;, &#39;__hash__&#39;, &#39;__init__&#39;, &#39;__new__&#39;, &#39;__reduce__&#39;, &#39;__reduce_ex__&#39;, &#39;__repr__&#39;, &#39;__setattr__&#39;, &#39;__str__&#39;, &#39;analysisTitle&#39;, &#39;close&#39;, &#39;closed&#39;, &#39;customData&#39;, &#39;description&#39;, &#39;diagnosticData&#39;, &#39;getFrame&#39;, &#39;isReadOnly&#39;, &#39;jobData&#39;, &#39;materials&#39;, &#39;name&#39;, &#39;parts&#39;, &#39;path&#39;, &#39;profiles&#39;, &#39;rootAssembly&#39;, &#39;save&#39;, &#39;sectionCategories&#39;, &#39;sections&#39;, &#39;sectorDefinition&#39;, &#39;steps&#39;, &#39;update&#39;, &#39;userData&#39;]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># OK let&#39;s have a look inside jobData</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">odb</span><span class="o">.</span><span class="n">jobData</span>
+<span class="go">({&#39;analysisCode&#39;: ABAQUS_STANDARD, &#39;creationTime&#39;: &#39;Mon Apr 29 15:44:54 CEST 2013&#39;, &#39;machineName&#39;: &#39;&#39;, &#39;modificationTime&#39;: &#39;Mon Apr 29 15:44:55 CEST 2013&#39;, &#39;name&#39;: &#39;/home/lcharleux/Documents/Programmation/Python/Modules/abapy/doc/example_code/tutorial/workdir/indentation_axi.odb&#39;, &#39;precision&#39;: SINGLE_PRECISION, &#39;productAddOns&#39;: (), &#39;version&#39;: &#39;Abaqus/Standard 6.9-EF1&#39;})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">odb</span><span class="o">.</span><span class="n">diagnosticData</span>
+<span class="go">({&#39;analysisErrors&#39;: &#39;OdbSequenceAnalysisError object&#39;, &#39;analysisWarnings&#39;: &#39;OdbSequenceAnalysisWarning object&#39;, &#39;isXplDoublePrecision&#39;: False, &#39;jobStatus&#39;: JOB_STATUS_COMPLETED_SUCCESSFULLY, &#39;jobTime&#39;: &#39;OdbJobTime object&#39;, &#39;numDomains&#39;: 1, &#39;numberOfAnalysisErrors&#39;: 0, &#39;numberOfAnalysisWarnings&#39;: 1, &#39;numberOfSteps&#39;: 2, &#39;numericalProblemSummary&#39;: &#39;OdbNumericalProblemSummary object&#39;, &#39;steps&#39;: &#39;OdbSequenceDiagnosticStep object&#39;})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">odb</span><span class="o">.</span><span class="n">diagnosticData</span><span class="o">.</span><span class="n">jobStatus</span>
+<span class="go">JOB_STATUS_COMPLETED_SUCCESSFULLY</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Now we know that the simulation was successful</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Let&#39;s now have a look to history outputs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">odb</span><span class="o">.</span><span class="n">steps</span>
+<span class="go">{&#39;LOADING&#39;: &#39;OdbStep object&#39;, &#39;UNLOADING&#39;: &#39;OdbStep object&#39;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">odb</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="s">&#39;LOADING&#39;</span><span class="p">]</span>
+<span class="go">({&#39;acousticMass&#39;: -1.0, &#39;acousticMassCenter&#39;: (), &#39;description&#39;: &#39;&#39;, &#39;domain&#39;: TIME, &#39;eliminatedNodalDofs&#39;: &#39;NodalDofsArray object&#39;, &#39;frames&#39;: &#39;OdbFrameArray object&#39;, &#39;historyRegions&#39;: &#39;Repository object&#39;, &#39;inertiaAboutCenter&#39;: (), &#39;inertiaAboutOrigin&#39;: (), &#39;loadCases&#39;: &#39;Repository object&#39;, &#39;mass&#39;: -1.0, &#39;massCenter&#39;: (), &#39;name&#39;: &#39;LOADING&#39;, &#39;nlgeom&#39;: True, &#39;number&#39;: 1, &#39;previousStepName&#39;: &#39;Initial&#39;, &#39;procedure&#39;: &#39;*STATIC&#39;, &#39;retainedEigenModes&#39;: (), &#39;retainedNodalDofs&#39;: &#39;NodalDofsArray object&#39;, &#39;timePeriod&#39;: 1.0, &#39;totalTime&#39;: 0.0})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">odb</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="s">&#39;LOADING&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">frames</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="go">({&#39;cyclicModeNumber&#39;: None, &#39;description&#39;: &#39;Increment     20: Step Time =    1.000&#39;, &#39;domain&#39;: TIME, &#39;fieldOutputs&#39;: &#39;Repository object&#39;, &#39;frameId&#39;: 20, &#39;frameValue&#39;: 1.0, &#39;frequency&#39;: None, &#39;incrementNumber&#39;: 20, &#39;isImaginary&#39;: False, &#39;loadCase&#39;: None, &#39;mode&#39;: None})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">odb</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="s">&#39;LOADING&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">historyRegions</span><span class="p">[</span><span class="s">&#39;Assembly ASSEMBLY&#39;</span><span class="p">]</span>
+<span class="go">({&#39;description&#39;: &#39;Output at assembly ASSEMBLY&#39;, &#39;historyOutputs&#39;: &#39;Repository object&#39;, &#39;loadCase&#39;: None, &#39;name&#39;: &#39;Assembly ASSEMBLY&#39;, &#39;point&#39;: &#39;HistoryPoint object&#39;, &#39;position&#39;: WHOLE_MODEL})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># And then to field outputs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">odb</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="s">&#39;LOADING&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">frames</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fieldOutputs</span><span class="p">[</span><span class="s">&#39;U&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">({&#39;baseElementType&#39;: &#39;&#39;, &#39;conjugateData&#39;: None, &#39;conjugateDataDouble&#39;: &#39;unknown&#39;, &#39;data&#39;: array([-2.51322398980847e-06, -0.333516657352448], &#39;d&#39;), &#39;dataDouble&#39;: &#39;unknown&#39;, &#39;elementLabel&#39;: None, &#39;face&#39;: None, &#39;instance&#39;: &#39;OdbInstance object&#39;, &#39;integrationPoint&#39;: None, &#39;inv3&#39;: None, &#39;localCoordSystem&#39;: None, &#39;localCoordSystemDouble&#39;: &#39;unknown&#39;, &#39;magnitude&#39;: 0.333516657352448, &#39;maxInPlanePrincipal&#39;: None, &#39;maxPrincipal&#39;: None, &#39;midPrincipal&#39;: None, &#39;minInPlanePrincipal&#39;: None, &#39;minPrincipal&#39;: None, &#39;mises&#39;: None, &#39;nodeLabel&#39;: 1, &#39;outOfPlanePrincipal&#39;: None, &#39;position&#39;: NODAL, &#39;precision&#39;: SINGLE_PRECISION, &#39;press&#39;: None, &#39;sectionPoint&#39;: None, &#39;tresca&#39;: None, &#39;type&#39;: VECTOR})</span>
+</pre></div>
+</div>
+<p>At this point, you must understand that you can find back every single input as well as every output in through Python. The question is now how to do it painlessly. Abapy was originaly made to solve this problem even if it can perform many other tasks like preprocessing and data management.</p>
+</div>
+<div class="section" id="first-example">
+<h2>First example<a class="headerlink" href="#first-example" title="Permalink to this headline">¶</a></h2>
+<p>Let&#8217;s now try to get back the load <em>vs.</em> disp curve and plot it using Abapy. First, we have to emphasize that Abaqus Python is not the best place to run any calculation or to plot things. There are many reasons for that among which:</p>
+<ul class="simple">
+<li>Abaqus uses old versions of Python, sometimes 5 years behind the current stable versions.</li>
+<li>It can be painful or even impossible to install packages on Abaqus/Python, for example on servers where you don&#8217;t have admin rights.</li>
+</ul>
+<p>This point is essential to understand how Abapy is built. Every function or class that can be used inside Abaqus/Python does not rely on third party packages like Numpy, even if it could be of great utility. On the other hand, classes that work on Abaqus/Python can have methods that use numpy locally because they are not intended to be used inside Abaqus. Then, the post processing with Abapy is intended to be done in two steps:</p>
+<ul class="simple">
+<li>Step 1: grabbing raw data inside Abaqus/Python and save it, mainly using serialization built-in module Pickle.</li>
+<li>Step 2: Processing raw data inside a standard Python on which third party modules are available.</li>
+</ul>
+<p>Now that we clarified this point, we will work with both Abaqus/Python and Python. The second one will progressively take more importance and become our main concern. We can make a first script that will be executed inside Abaqus/Python. It aims to find where to find the indenter displacement of the force applied on it.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># ABAQUS/PYTHON POST PROCESSING SCRIPT</span>
+<span class="c"># Run using abaqus python / abaqus viewer -noGUI / abaqus cae -noGUI</span>
+
+<span class="c"># Packages (Abaqus, Abapy and built-in only here)</span>
+<span class="kn">from</span> <span class="nn">odbAccess</span> <span class="kn">import</span> <span class="n">openOdb</span>
+<span class="kn">from</span> <span class="nn">abapy.misc</span> <span class="kn">import</span> <span class="n">dump</span>
+<span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">GetHistoryOutputByKey</span> <span class="k">as</span> <span class="n">gho</span>
+
+<span class="c"># Setting up some pathes</span>
+<span class="n">workdir</span> <span class="o">=</span> <span class="s">&#39;workdir&#39;</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;indentation_axi&#39;</span>
+
+<span class="c"># Opening the Odb File</span>
+<span class="n">odb</span> <span class="o">=</span> <span class="n">openOdb</span><span class="p">(</span><span class="n">workdir</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&#39;.odb&#39;</span><span class="p">)</span>
+
+<span class="c"># Finding back the position of the reference node of the indenter. Its number is stored inside a node set named REF_NODE.</span>
+<span class="n">ref_node_label</span> <span class="o">=</span> <span class="n">odb</span><span class="o">.</span><span class="n">rootAssembly</span><span class="o">.</span><span class="n">instances</span><span class="p">[</span><span class="s">&#39;I_INDENTER&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nodeSets</span><span class="p">[</span><span class="s">&#39;REF_NODE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label</span>
+
+<span class="c"># Getting back the reaction forces along Y (RF2) and displacements along Y (U2) where they are recorded.</span>
+<span class="n">RF2</span> <span class="o">=</span> <span class="n">gho</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span> <span class="s">&#39;RF2&#39;</span><span class="p">)</span>
+<span class="n">U2</span>  <span class="o">=</span> <span class="n">gho</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span> <span class="s">&#39;U2&#39;</span><span class="p">)</span>
+
+<span class="c"># Packing data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;ref_node_label&#39;</span><span class="p">:</span> <span class="n">ref_node_label</span><span class="p">,</span> <span class="s">&#39;RF2&#39;</span><span class="p">:</span><span class="n">RF2</span><span class="p">,</span> <span class="s">&#39;U2&#39;</span><span class="p">:</span><span class="n">U2</span><span class="p">}</span>
+
+<span class="c"># Dumping data</span>
+<span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">workdir</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&#39;.pckl&#39;</span><span class="p">)</span>
+
+<span class="c"># Closing Odb</span>
+<span class="n">odb</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Dowload link: <a class="reference download internal" href="_downloads/first_example_abq.py"><tt class="xref download docutils literal"><span class="pre">first_example_abq.py</span></tt></a></p>
+<p>Then, we can make a second script that is made to work in regular Python</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># PYTHON POST PROCESSING SCRIPT</span>
+<span class="c"># Run using python</span>
+
+<span class="c"># Packages</span>
+<span class="kn">from</span> <span class="nn">abapy.misc</span> <span class="kn">import</span> <span class="n">load</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="c"># Setting up some pathes</span>
+<span class="n">workdir</span> <span class="o">=</span> <span class="s">&#39;workdir&#39;</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;indentation_axi&#39;</span>
+
+<span class="c"># Getting back raw data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">workdir</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&#39;.pckl&#39;</span><span class="p">)</span>
+
+<span class="c"># Post processing</span>
+<span class="n">ref_node_label</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;ref_node_label&#39;</span><span class="p">]</span>
+<span class="n">force_hist</span> <span class="o">=</span> <span class="o">-</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;RF2&#39;</span><span class="p">][</span><span class="s">&#39;Node I_INDENTER.{0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ref_node_label</span><span class="p">)]</span>
+<span class="n">disp_hist</span> <span class="o">=</span> <span class="o">-</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;U2&#39;</span><span class="p">][</span><span class="s">&#39;Node I_INDENTER.{0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ref_node_label</span><span class="p">)]</span>
+
+<span class="n">time</span><span class="p">,</span> <span class="n">force_l</span> <span class="o">=</span> <span class="n">force_hist</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plotable</span><span class="p">()</span> <span class="c"># Getting back force  during loading</span>
+<span class="n">time</span><span class="p">,</span> <span class="n">disp_l</span> <span class="o">=</span> <span class="n">disp_hist</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plotable</span><span class="p">()</span>   <span class="c"># Getting backdisplacement during loading</span>
+<span class="n">time</span><span class="p">,</span> <span class="n">force_u</span> <span class="o">=</span> <span class="n">force_hist</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plotable</span><span class="p">()</span> <span class="c"># Getting back force  during unloading</span>
+<span class="n">time</span><span class="p">,</span> <span class="n">disp_u</span> <span class="o">=</span> <span class="n">disp_hist</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plotable</span><span class="p">()</span>   <span class="c"># Getting backdisplacement during unloading</span>
+
+<span class="c"># Dimensional analysis (E. Buckingham. Physical review, 4, 1914.) shows that the loading curve must be parabolic, let&#39;s build a parabolic fit</span>
+
+
+<span class="n">C_factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">force_hist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">disp_hist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">average</span><span class="p">()</span>
+<span class="n">disp_fit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">disp_hist</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">toArray</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">force_fit</span> <span class="o">=</span> <span class="n">C_factor</span> <span class="o">*</span> <span class="n">disp_fit</span><span class="o">**</span><span class="mi">2</span>
+
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">disp_l</span><span class="p">,</span> <span class="n">force_l</span><span class="p">,</span> <span class="s">&#39;r-&#39;</span><span class="p">,</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">2.</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">&#39;Loading&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">disp_u</span><span class="p">,</span> <span class="n">force_u</span><span class="p">,</span> <span class="s">&#39;b-&#39;</span><span class="p">,</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">2.</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">&#39;Unloading&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">disp_fit</span><span class="p">,</span> <span class="n">force_fit</span><span class="p">,</span> <span class="s">&#39;g-&#39;</span><span class="p">,</span> <span class="n">linewidth</span> <span class="o">=</span> <span class="mf">2.</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">&#39;Parabolic fit&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;Displacement $d$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Force $F$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span> <span class="o">=</span> <span class="s">&#39;upper left&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="./example_code/tutorial/first_example.py">Source code</a>, <a class="reference external" href="./example_code/tutorial/first_example.png">png</a>, <a class="reference external" href="./example_code/tutorial/first_example.hires.png">hires.png</a>, <a class="reference external" href="./example_code/tutorial/first_example.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/first_example.png" src="_images/first_example.png" />
+</div>
+<p>The loading curve is very noisy because the mesh is coarse. Anyway, the loading phase is theoretically parabolic and so, it can be averaged and give a quite good result even if looks ugly.</p>
+</div>
+<div class="section" id="fancier-example">
+<h2>Fancier example<a class="headerlink" href="#fancier-example" title="Permalink to this headline">¶</a></h2>
+<p>Now we want to do fancier things like wrapping all the Abaqus/Python part inside the regular Python part in order to change the problem into a simple function or method evaluation. On a more mechanical point of view, we want to be able to compute the loading prefactor C for any material parameters usable in the von Mises elastic plastic law. We create 2 files:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># FANCIER_EXAMPLE: computing the loading prefactor of the indentation load vs. disp curve.</span>
+<span class="c"># Run using python</span>
+
+<span class="c"># Packages</span>
+<span class="kn">from</span> <span class="nn">abapy.misc</span> <span class="kn">import</span> <span class="n">load</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+     
+
+
+<span class="k">def</span> <span class="nf">compute_C</span><span class="p">(</span><span class="n">E</span> <span class="o">=</span> <span class="mf">1.</span> <span class="p">,</span> <span class="n">nu</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">sy</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">abqlauncher</span> <span class="o">=</span> <span class="s">&#39;/opt/Abaqus/6.9/Commands/abaqus&#39;</span><span class="p">,</span> <span class="n">workdir</span> <span class="o">=</span> <span class="s">&#39;workdir&#39;</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;indentation_axi_fancier&#39;</span><span class="p">,</span> <span class="n">frames</span> <span class="o">=</span> <span class="mi">50</span><span class="p">):</span>
+  <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  Computes the load prefactor C using Abaqus.</span>
+<span class="sd">  </span>
+<span class="sd">  Inputs:</span>
+<span class="sd">  * E: sample&#39;s Young modulus.</span>
+<span class="sd">  * nu: samples&#39;s Poisson&#39;s ratio</span>
+<span class="sd">  * sy: sample&#39;s yield stress (von Mises yield criterion).</span>
+<span class="sd">  * abqlauncher: absolute path to abaqus launcher.</span>
+<span class="sd">  * wordir: path to working directory, can be relative.</span>
+<span class="sd">  * name: name of simulation files.</span>
+<span class="sd">  * frames: number of frames per step, increase if the simulation does not complete.</span>
+<span class="sd">  </span>
+<span class="sd">  Returns:</span>
+<span class="sd">  * Load prefactor C (float)</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+  <span class="kn">import</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">subprocess</span><span class="o">,</span> <span class="nn">os</span>
+  <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="c"># Starting time recording</span>
+  <span class="n">path</span> <span class="o">=</span> <span class="n">workdir</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span>
+  <span class="c"># Reading the INP target file</span>
+  <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;indentation_axi_target.inp&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+  <span class="n">inp</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+  <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+  <span class="c"># Replace the targets in the file</span>
+  <span class="n">inp</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;#E&#39;</span><span class="p">,</span> <span class="s">&#39;{0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">E</span><span class="p">))</span>
+  <span class="n">inp</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;#NU&#39;</span><span class="p">,</span> <span class="s">&#39;{0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nu</span><span class="p">))</span>
+  <span class="n">inp</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;#SY&#39;</span><span class="p">,</span> <span class="s">&#39;{0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sy</span><span class="p">))</span>
+  <span class="n">inp</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;#FRAME&#39;</span><span class="p">,</span> <span class="s">&#39;{0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">frames</span><span class="p">))</span>
+  <span class="c"># Creating a new inp file</span>
+  <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span>  <span class="o">+</span> <span class="s">&#39;.inp&#39;</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
+  <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">inp</span><span class="p">)</span>
+  <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+  <span class="k">print</span> <span class="s">&#39;Created INP file: {0}.inp&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+  <span class="c"># Then we run the simulation</span>
+  <span class="k">print</span> <span class="s">&#39;Running simulation in Abaqus&#39;</span>
+  <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span> <span class="s">&#39;{0} job={1} input={1}.inp interactive ask_delete=OFF&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">abqlauncher</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> <span class="n">cwd</span> <span class="o">=</span> <span class="n">workdir</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">stdout</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+  <span class="n">trash</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+  
+  <span class="c"># Now we test run the post processing script</span>
+  <span class="k">print</span> <span class="s">&#39;Post processing the simulation in Abaqus/Python&#39;</span>
+  <span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span> <span class="p">[</span><span class="n">abqlauncher</span><span class="p">,</span>  <span class="s">&#39;viewer&#39;</span><span class="p">,</span> <span class="s">&#39;noGUI=fancier_example_abq.py&#39;</span><span class="p">],</span> <span class="n">cwd</span> <span class="o">=</span> <span class="s">&#39;.&#39;</span><span class="p">,</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span> <span class="p">)</span>
+  <span class="n">trash</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+  <span class="c"># Getting back raw data</span>
+  <span class="n">data</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">workdir</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&#39;.pckl&#39;</span><span class="p">)</span>
+  <span class="c"># Post processing</span>
+  <span class="k">print</span> <span class="s">&#39;Post processing the simulation in Python&#39;</span>
+  <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;completed&#39;</span><span class="p">]:</span>
+    <span class="n">ref_node_label</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;ref_node_label&#39;</span><span class="p">]</span>
+    <span class="n">force_hist</span> <span class="o">=</span> <span class="o">-</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;RF2&#39;</span><span class="p">][</span><span class="s">&#39;Node I_INDENTER.{0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ref_node_label</span><span class="p">)]</span>
+    <span class="n">disp_hist</span> <span class="o">=</span> <span class="o">-</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;U2&#39;</span><span class="p">][</span><span class="s">&#39;Node I_INDENTER.{0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ref_node_label</span><span class="p">)]</span>
+    <span class="n">trash</span><span class="p">,</span> <span class="n">force_l</span> <span class="o">=</span> <span class="n">force_hist</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plotable</span><span class="p">()</span> <span class="c"># Getting back force  during loading</span>
+    <span class="n">trash</span><span class="p">,</span> <span class="n">disp_l</span> <span class="o">=</span> <span class="n">disp_hist</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plotable</span><span class="p">()</span>   <span class="c"># Getting backdisplacement during loading</span>
+    <span class="n">trash</span><span class="p">,</span> <span class="n">force_u</span> <span class="o">=</span> <span class="n">force_hist</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plotable</span><span class="p">()</span> <span class="c"># Getting back force  during unloading</span>
+    <span class="n">trash</span><span class="p">,</span> <span class="n">disp_u</span> <span class="o">=</span> <span class="n">disp_hist</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">plotable</span><span class="p">()</span>   <span class="c"># Getting backdisplacement during unloading</span>
+    <span class="n">C_factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">force_hist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">disp_hist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">average</span><span class="p">()</span>
+    
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span> <span class="s">&#39;Simulation aborted, probably because frame number is to low&#39;</span>
+    <span class="n">C_factor</span> <span class="o">=</span> <span class="bp">None</span>  
+  <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+  <span class="k">print</span> <span class="s">&#39;Time used: {0:.2e} s&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t1</span><span class="o">-</span><span class="n">t0</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">C_factor</span>
+  
+<span class="c"># Setting up some pathes</span>
+<span class="n">workdir</span> <span class="o">=</span> <span class="s">&#39;workdir&#39;</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;indentation_axi_fancier&#39;</span>
+<span class="n">abqlauncher</span> <span class="o">=</span> <span class="s">&#39;/opt/Abaqus/6.9/Commands/abaqus&#39;</span>
+
+<span class="c"># Setting material parameters</span>
+<span class="n">E</span> <span class="o">=</span> <span class="mf">1.</span>
+<span class="n">nu</span> <span class="o">=</span> <span class="mf">0.3</span>
+<span class="n">sy</span> <span class="o">=</span> <span class="mf">0.01</span>
+<span class="n">frames</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="c"># Testing it all</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">compute_C</span><span class="p">(</span><span class="n">E</span> <span class="o">=</span> <span class="n">E</span><span class="p">,</span> <span class="n">nu</span> <span class="o">=</span> <span class="n">nu</span><span class="p">,</span> <span class="n">sy</span> <span class="o">=</span> <span class="n">sy</span><span class="p">,</span> <span class="n">frames</span> <span class="o">=</span> <span class="n">frames</span><span class="p">)</span>
+<span class="k">print</span> <span class="s">&#39;C = {0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Dowload link: <a class="reference download internal" href="_downloads/fancier_example.py"><tt class="xref download docutils literal"><span class="pre">fancier_example.py</span></tt></a></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># ABAQUS/PYTHON POST PROCESSING SCRIPT</span>
+<span class="c"># Run using abaqus python / abaqus viewer -noGUI / abaqus cae -noGUI</span>
+
+<span class="c"># Packages (Abaqus, Abapy and built-in only here)</span>
+<span class="kn">from</span> <span class="nn">odbAccess</span> <span class="kn">import</span> <span class="n">openOdb</span>
+<span class="kn">from</span> <span class="nn">abapy.misc</span> <span class="kn">import</span> <span class="n">dump</span>
+<span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">GetHistoryOutputByKey</span> <span class="k">as</span> <span class="n">gho</span>
+<span class="kn">from</span> <span class="nn">abaqusConstants</span> <span class="kn">import</span> <span class="n">JOB_STATUS_COMPLETED_SUCCESSFULLY</span>
+
+
+<span class="c"># Setting up some pathes</span>
+<span class="n">workdir</span> <span class="o">=</span> <span class="s">&#39;workdir&#39;</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s">&#39;indentation_axi_fancier&#39;</span>
+
+<span class="c"># Opening the Odb File</span>
+<span class="n">odb</span> <span class="o">=</span> <span class="n">openOdb</span><span class="p">(</span><span class="n">workdir</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&#39;.odb&#39;</span><span class="p">)</span>
+
+<span class="c"># Testing job status</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">status</span> <span class="o">=</span> <span class="n">odb</span><span class="o">.</span><span class="n">diagnosticData</span><span class="o">.</span><span class="n">jobStatus</span>
+<span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="n">JOB_STATUS_COMPLETED_SUCCESSFULLY</span><span class="p">:</span>
+  <span class="n">data</span><span class="p">[</span><span class="s">&#39;completed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+  <span class="c"># Finding back the position of the reference node of the indenter. Its number is stored inside a node set named REF_NODE.</span>
+  <span class="n">ref_node_label</span> <span class="o">=</span> <span class="n">odb</span><span class="o">.</span><span class="n">rootAssembly</span><span class="o">.</span><span class="n">instances</span><span class="p">[</span><span class="s">&#39;I_INDENTER&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nodeSets</span><span class="p">[</span><span class="s">&#39;REF_NODE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label</span>
+
+  <span class="c"># Getting back the reaction forces along Y (RF2) and displacements along Y (U2) where they are recorded.</span>
+  <span class="n">RF2</span> <span class="o">=</span> <span class="n">gho</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span> <span class="s">&#39;RF2&#39;</span><span class="p">)</span>
+  <span class="n">U2</span>  <span class="o">=</span> <span class="n">gho</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span> <span class="s">&#39;U2&#39;</span><span class="p">)</span>
+
+  <span class="c"># Packing data</span>
+  <span class="n">data</span><span class="p">[</span><span class="s">&#39;ref_node_label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref_node_label</span>
+  <span class="n">data</span><span class="p">[</span><span class="s">&#39;RF2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RF2</span> 
+  <span class="n">data</span><span class="p">[</span><span class="s">&#39;U2&#39;</span><span class="p">]</span>  <span class="o">=</span> <span class="n">U2</span>
+
+  
+<span class="k">else</span><span class="p">:</span>
+  <span class="n">data</span><span class="p">[</span><span class="s">&#39;completed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="c"># Dumping data</span>
+<span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">workdir</span> <span class="o">+</span> <span class="s">&#39;/&#39;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&#39;.pckl&#39;</span><span class="p">)</span>
+<span class="c"># Closing Odb</span>
+<span class="n">odb</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Dowload link: <a class="reference download internal" href="_downloads/fancier_example_abq.py"><tt class="xref download docutils literal"><span class="pre">fancier_example_abq.py</span></tt></a></p>
+<p>Then, executing <tt class="docutils literal"><span class="pre">fancier_example.py</span></tt> gives:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">execfile</span><span class="p">(</span><span class="s">&#39;fancier_example.py&#39;</span><span class="p">)</span>
+<span class="go">Created INP file: workdir/indentation_axi_fancier.inp</span>
+<span class="go">Running simulation in Abaqus</span>
+<span class="go">Abaqus License Manager checked out the following licenses:</span>
+<span class="go">Abaqus/Standard checked out 5 tokens.</span>
+<span class="go">&lt;55 out of 60 licenses remain available&gt;.</span>
+<span class="go">Abaqus License Manager checked out the following licenses:</span>
+<span class="go">Abaqus/Standard checked out 5 tokens.</span>
+<span class="go">&lt;55 out of 60 licenses remain available&gt;.</span>
+<span class="go">Post processing the simulation in Abaqus/Python</span>
+<span class="go">Abaqus License Manager checked out the following license(s):</span>
+<span class="go">&quot;cae&quot; release 6.9 from epua-e172.univ-savoie.fr</span>
+<span class="go">&lt;5 out of 6 licenses remain available&gt;.</span>
+<span class="go">Post processing the simulation in Python</span>
+<span class="go">Time used: 2.93e+01 s</span>
+<span class="go">C = 0.6993227005</span>
+</pre></div>
+</div>
+<p>Now you know how how to control the simulation through regular Python but important things are still missing. For example:</p>
+<ul class="simple">
+<li>The coarse mesh limits the accuracy of the simulation, a parametric mesh allowing to adjust speed and precision freely would be welcomed.</li>
+<li>What if you need more that the single load prefactor ? A class having many important outputs instead of a function could be nice.</li>
+<li>Simulations take time and it&#8217;s always frustrating to do them two times, data persistence could of great use here.</li>
+</ul>
+<p>All this can be addressed using Abapy with other third party packages like Numpy, Scipy, Matplotlib and SQLAlchemy. The advanced example provides details explanations on this point.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Tutorial</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#first-example">First example</a></li>
+<li><a class="reference internal" href="#fancier-example">Fancier example</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Abapy Documentation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mesh.html"
+                        title="next chapter">Mesh</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mesh.html" title="Mesh"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Abapy Documentation"
+             >previous</a> |</li>
+        <li><a href="index.html">abapy 2.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Ludovic Charleux.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

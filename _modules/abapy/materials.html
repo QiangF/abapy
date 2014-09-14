@@ -1,0 +1,345 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>abapy.materials &mdash; abapy 2.3.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="abapy 2.3.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">abapy 2.3.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for abapy.materials</h1><div class="highlight"><pre>
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Materials</span>
+<span class="sd">=========</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="VonMises"><a class="viewcode-back" href="../../materials.html#abapy.materials.VonMises">[docs]</a><span class="k">class</span> <span class="nc">VonMises</span><span class="p">:</span>
+  <span class="sd">&#39;&#39;&#39; </span>
+<span class="sd">  Represents von Mises materials used for FEM simulations</span>
+<span class="sd">  </span>
+<span class="sd">  :param E: Young&#39;s modulus.</span>
+<span class="sd">  :type E: float, list, array.array</span>
+<span class="sd">  :param nu: Poisson&#39;s ratio.</span>
+<span class="sd">  :type nu: float, list, array.array</span>
+<span class="sd">  :param sy: Yield stress.</span>
+<span class="sd">  :type sy: float, list, array.array</span>
+<span class="sd">  </span>
+<span class="sd">  .. note:: </span>
+<span class="sd">     All inputs must have the same length or an exception will be raised.</span>
+<span class="sd">     </span>
+<span class="sd">     </span>
+<span class="sd">  &gt;&gt;&gt; from abapy.materials import VonMises</span>
+<span class="sd">  &gt;&gt;&gt; m = VonMises(labels=&#39;myMaterial&#39;,E=1,nu=0.45, sy=0.01)</span>
+<span class="sd">  &gt;&gt;&gt; print m.dump2inp()</span>
+<span class="sd">  ...</span>
+<span class="sd">  </span>
+<span class="sd">  </span>
+<span class="sd">  &#39;&#39;&#39;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="s">&#39;mat&#39;</span><span class="p">,</span> <span class="n">E</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">nu</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">sy</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">dtf</span><span class="o">=</span><span class="s">&#39;d&#39;</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">labels</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">=</span><span class="n">labels</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">E</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">E</span><span class="o">=</span><span class="p">[</span><span class="n">E</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">E</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">E</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">nu</span><span class="o">=</span><span class="p">[</span><span class="n">nu</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">nu</span><span class="p">)</span>  
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sy</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">sy</span><span class="o">=</span><span class="p">[</span><span class="n">sy</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sy</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">sy</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">sy</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s">&#39;&lt;VonMises instance: {0} samples&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">))</span>
+<div class="viewcode-block" id="VonMises.dump2inp"><a class="viewcode-back" href="../../materials.html#abapy.materials.VonMises.dump2inp">[docs]</a>  <span class="k">def</span> <span class="nf">dump2inp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns materials in INP format suitable with abaqus input files.</span>
+<span class="sd">    </span>
+<span class="sd">    :rtype: string</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="s">&#39;** {0}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__repr__</span><span class="p">())</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="s">&#39;*MATERIAL, NAME={0}</span><span class="se">\n</span><span class="s">*ELASTIC</span><span class="se">\n</span><span class="s">  {1}, {2}</span><span class="se">\n</span><span class="s">*PLASTIC</span><span class="se">\n</span><span class="s">  {3}, 0.</span><span class="se">\n</span><span class="s">&#39;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">)):</span>
+      <span class="n">out</span> <span class="o">+=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">sy</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</div></div>
+<div class="viewcode-block" id="Elastic"><a class="viewcode-back" href="../../materials.html#abapy.materials.Elastic">[docs]</a><span class="k">class</span> <span class="nc">Elastic</span><span class="p">:</span>
+  <span class="sd">&#39;&#39;&#39; </span>
+<span class="sd">  Represents an istotrop linear elastic material used for FEM simulations</span>
+<span class="sd">  </span>
+<span class="sd">  :param E: Young&#39;s modulus.</span>
+<span class="sd">  :type E: float, list, array.array</span>
+<span class="sd">  :param nu: Poisson&#39;s ratio.</span>
+<span class="sd">  :type nu: float, list, array.array</span>
+<span class="sd">  </span>
+<span class="sd">  .. note:: </span>
+<span class="sd">     All inputs must have the same length or an exception will be raised.</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="s">&#39;mat&#39;</span><span class="p">,</span> <span class="n">E</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">nu</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">dtf</span><span class="o">=</span><span class="s">&#39;d&#39;</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">labels</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">=</span><span class="n">labels</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">E</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">E</span><span class="o">=</span><span class="p">[</span><span class="n">E</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">E</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">E</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">nu</span><span class="o">=</span><span class="p">[</span><span class="n">nu</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">nu</span><span class="p">)</span>  
+  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s">&#39;&lt;Elastic instance: {0} samples&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">))</span>
+<div class="viewcode-block" id="Elastic.dump2inp"><a class="viewcode-back" href="../../materials.html#abapy.materials.Elastic.dump2inp">[docs]</a>  <span class="k">def</span> <span class="nf">dump2inp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns materials in INP format suitable with abaqus input files.</span>
+<span class="sd">    </span>
+<span class="sd">    :rtype: string</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="s">&#39;** {0}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__repr__</span><span class="p">())</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="s">&#39;*MATERIAL, NAME={0}</span><span class="se">\n</span><span class="s">*ELASTIC</span><span class="se">\n</span><span class="s">  {1}, {2}</span><span class="se">\n</span><span class="s">&#39;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">)):</span>
+      <span class="n">out</span> <span class="o">+=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+</div></div>
+<div class="viewcode-block" id="DruckerPrager"><a class="viewcode-back" href="../../materials.html#abapy.materials.DruckerPrager">[docs]</a><span class="k">class</span> <span class="nc">DruckerPrager</span><span class="p">:</span>
+  <span class="sd">&#39;&#39;&#39; </span>
+<span class="sd">  Represents Drucker-Prager materials used for FEM simulations</span>
+<span class="sd">  </span>
+<span class="sd">  :param E: Young&#39;s modulus.</span>
+<span class="sd">  :type E: float, list, array.array</span>
+<span class="sd">  :param nu: Poisson&#39;s ratio.</span>
+<span class="sd">  :type nu: float, list, array.array</span>
+<span class="sd">  :param sy: Compressive yield stress.</span>
+<span class="sd">  :type sy: float, list, array.array</span>
+<span class="sd">  :param beta: Friction angle in degrees.</span>
+<span class="sd">  :type beta: float, list, array.array</span>
+<span class="sd">  :param psi: Dilatation angle in degress. If psi = beta, the plastic flow is associated. If psi = None, the associated flow is automatically be chosen.</span>
+<span class="sd">  :type psi: float, list, array.array or None</span>
+<span class="sd">  :param k: tension vs. compression asymmetry. For k = 1., not asymmetry, for k=0.778 maximum possible asymmetry.</span>
+<span class="sd">  :type k: float, list, array.array</span>
+<span class="sd">  </span>
+<span class="sd">  .. note:: </span>
+<span class="sd">     All inputs must have the same length or an exception will be raised.</span>
+<span class="sd">     </span>
+<span class="sd">   ...</span>
+<span class="sd">  </span>
+<span class="sd">  </span>
+<span class="sd">  &#39;&#39;&#39;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="s">&#39;mat&#39;</span><span class="p">,</span> <span class="n">E</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">nu</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">sy</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">beta</span> <span class="o">=</span> <span class="mf">10.</span><span class="p">,</span> <span class="n">psi</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">dtf</span><span class="o">=</span><span class="s">&#39;d&#39;</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">labels</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">=</span><span class="n">labels</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">E</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">E</span><span class="o">=</span><span class="p">[</span><span class="n">E</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">E</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">E</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">nu</span><span class="o">=</span><span class="p">[</span><span class="n">nu</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">nu</span><span class="p">)</span>  
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sy</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">sy</span><span class="o">=</span><span class="p">[</span><span class="n">sy</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sy</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">sy</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">sy</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">beta</span><span class="o">=</span><span class="p">[</span><span class="n">beta</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">beta</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">psi</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span> <span class="n">psi</span> <span class="o">=</span> <span class="n">beta</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">psi</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">psi</span><span class="o">=</span><span class="p">[</span><span class="n">psi</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">psi</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">psi</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">psi</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">k</span><span class="o">=</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">k</span><span class="p">)</span>
+  
+  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s">&#39;&lt;DruckerPrager instance: {0} samples&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">))</span>
+  
+<div class="viewcode-block" id="DruckerPrager.dump2inp"><a class="viewcode-back" href="../../materials.html#abapy.materials.DruckerPrager.dump2inp">[docs]</a>  <span class="k">def</span> <span class="nf">dump2inp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns materials in INP format suitable with abaqus input files.</span>
+<span class="sd">    </span>
+<span class="sd">    :rtype: string</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="s">&#39;** {0}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__repr__</span><span class="p">())</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="s">&#39;*MATERIAL, NAME={0}</span><span class="se">\n</span><span class="s">*ELASTIC</span><span class="se">\n</span><span class="s">  {1}, {2}</span><span class="se">\n</span><span class="s">*DRUCKER PRAGER</span><span class="se">\n</span><span class="s">  {3}, {4}, {5}</span><span class="se">\n</span><span class="s">*DRUCKER PRAGER HARDENING</span><span class="se">\n</span><span class="s">  {6}, 0.</span><span class="se">\n</span><span class="s">&#39;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">)):</span>
+      <span class="n">out</span> <span class="o">+=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">psi</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sy</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    </div></div>
+<div class="viewcode-block" id="Hollomon"><a class="viewcode-back" href="../../materials.html#abapy.materials.Hollomon">[docs]</a><span class="k">class</span> <span class="nc">Hollomon</span><span class="p">:</span>
+  <span class="sd">&#39;&#39;&#39; </span>
+<span class="sd">  Represents von Hollom materials (i. e. power law haderning and von mises yield criterion) used for FEM simulations.</span>
+<span class="sd">  </span>
+<span class="sd">  :param E: Young&#39;s modulus.</span>
+<span class="sd">  :type E: float, list, array.array</span>
+<span class="sd">  :param nu: Poisson&#39;s ratio.</span>
+<span class="sd">  :type nu: float, list, array.array</span>
+<span class="sd">  :param sy: Yield stress.</span>
+<span class="sd">  :type sy: float, list, array.array</span>
+<span class="sd">  :param n: hardening exponent</span>
+<span class="sd">  :type sy: float, list, array.array</span>
+<span class="sd">  </span>
+<span class="sd">  .. note:: </span>
+<span class="sd">     All inputs must have the same length or an exception will be raised.</span>
+<span class="sd">    </span>
+<span class="sd">  .. plot:: example_code/materials/Hollomon.py</span>
+<span class="sd">    :include-source:   </span>
+<span class="sd">  </span>
+<span class="sd">  </span>
+<span class="sd">  &#39;&#39;&#39;</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="s">&#39;mat&#39;</span><span class="p">,</span> <span class="n">E</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">nu</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">sy</span> <span class="o">=</span> <span class="mf">0.01</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">dtf</span><span class="o">=</span><span class="s">&#39;d&#39;</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">labels</span><span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="o">=</span><span class="n">labels</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">E</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">E</span><span class="o">=</span><span class="p">[</span><span class="n">E</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">E</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">E</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">nu</span><span class="o">=</span><span class="p">[</span><span class="n">nu</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">nu</span><span class="p">)</span>  
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sy</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">sy</span><span class="o">=</span><span class="p">[</span><span class="n">sy</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sy</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">sy</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">sy</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">long</span><span class="p">]:</span> <span class="n">n</span><span class="o">=</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">!=</span> <span class="n">l</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;Parameters must all have the same length&#39;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">=</span><span class="n">array</span><span class="p">(</span><span class="n">dtf</span><span class="p">,</span><span class="n">n</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s">&#39;&lt;Hollomon instance: {0} samples&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">))</span>
+  
+<div class="viewcode-block" id="Hollomon.get_table"><a class="viewcode-back" href="../../materials.html#abapy.materials.Hollomon.get_table">[docs]</a>  <span class="k">def</span> <span class="nf">get_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">eps_max</span> <span class="o">=</span> <span class="mf">10.</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">100</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns the tabular data corresponding to the tensile stress strain law using log spacing.</span>
+<span class="sd">    </span>
+<span class="sd">    :param eps_max: maximum strain to be computed.</span>
+<span class="sd">    :type eps_max: float</span>
+<span class="sd">    :param N: number of points to be computed.</span>
+<span class="sd">    :type N: int</span>
+<span class="sd">    :rtype: ``numpy.array``</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+    <span class="n">sy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sy</span><span class="p">[</span><span class="n">position</span><span class="p">]</span>
+    <span class="n">E</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">[</span><span class="n">position</span><span class="p">]</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">[</span><span class="n">position</span><span class="p">]</span>
+    <span class="n">ey</span> <span class="o">=</span> <span class="n">sy</span><span class="o">/</span><span class="n">E</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="mf">10.</span><span class="o">**</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">eps_max</span><span class="o">/</span><span class="n">ey</span><span class="p">),</span> <span class="n">N</span><span class="p">,</span> <span class="n">endpoint</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="n">ey</span> <span class="o">*</span> <span class="n">s</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">sy</span> <span class="o">*</span> <span class="n">s</span><span class="o">**</span><span class="n">n</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">eps</span><span class="p">,</span> <span class="n">sigma</span><span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+      </div>
+<div class="viewcode-block" id="Hollomon.dump2inp"><a class="viewcode-back" href="../../materials.html#abapy.materials.Hollomon.dump2inp">[docs]</a>  <span class="k">def</span> <span class="nf">dump2inp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">eps_max</span> <span class="o">=</span> <span class="mf">10.</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">100</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns materials in INP format suitable with abaqus input files.</span>
+<span class="sd">    </span>
+<span class="sd">    :param eps_max: maximum strain to be computed.</span>
+<span class="sd">    :type eps_max: float</span>
+<span class="sd">    :param N: number of points to be computed.</span>
+<span class="sd">    :type N: int</span>
+<span class="sd">    :rtype: string</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="s">&#39;** {0}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__repr__</span><span class="p">())</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="s">&#39;*MATERIAL, NAME={0}</span><span class="se">\n</span><span class="s">*ELASTIC</span><span class="se">\n</span><span class="s">  {1}, {2}</span><span class="se">\n</span><span class="s">*PLASTIC</span><span class="se">\n</span><span class="s">{3}</span><span class="se">\n</span><span class="s">&#39;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">)):</span>
+      <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_table</span><span class="p">(</span><span class="n">position</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span> <span class="n">eps_max</span> <span class="o">=</span> <span class="n">eps_max</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="n">N</span><span class="p">)</span>
+      <span class="n">sigma</span> <span class="o">=</span> <span class="n">table</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span>
+      <span class="n">eps</span> <span class="o">=</span> <span class="n">table</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span>
+      <span class="n">eps_p</span> <span class="o">=</span> <span class="n">eps</span> <span class="o">-</span> <span class="n">eps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="n">data</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+      <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">)):</span>
+        <span class="n">data</span> <span class="o">+=</span> <span class="s">&#39;  {0}, {1}</span><span class="se">\n</span><span class="s">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sigma</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">eps_p</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+      <span class="n">out</span> <span class="o">+=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">E</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="bp">self</span><span class="o">.</span><span class="n">nu</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    
+    
+    
+    </div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">abapy 2.3.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Ludovic Charleux.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,2057 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Post Processing &mdash; abapy 2.3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="abapy 2.3.0 documentation" href="index.html" />
+    <link rel="next" title="Indentation" href="indentation.html" />
+    <link rel="prev" title="Materials" href="materials.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="indentation.html" title="Indentation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="materials.html" title="Materials"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">abapy 2.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="post-processing">
+<h1>Post Processing<a class="headerlink" href="#post-processing" title="Permalink to this headline">¶</a></h1>
+<p>Finite Element Modeling post processing tools.</p>
+<div class="section" id="field-outputs">
+<h2>Field Outputs<a class="headerlink" href="#field-outputs" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="scalar-fields">
+<h3>Scalar fields<a class="headerlink" href="#scalar-fields" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="abapy.postproc.FieldOutput">
+<em class="property">class </em><tt class="descclassname">abapy.postproc.</tt><tt class="descname">FieldOutput</tt><big>(</big><em>position='node'</em>, <em>data=None</em>, <em>labels=None</em>, <em>dti='I'</em>, <em>dtf='f'</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#FieldOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.FieldOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scalar output representing a field evaluated on nodes or elements referenced by their labels. A FieldOutput instance cannot be interpreted with its mesh. On initiation, labels and data will be reordered to have labels sorted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>position</strong> (<em>&#8216;node&#8217; or &#8216;element&#8217;</em>) &#8211; location of the field evaluation</li>
+<li><strong>data</strong> (<em>list, array.array, numpy.array containing floats</em>) &#8211; value of the field where it is evaluated</li>
+<li><strong>labels</strong> (<em>list, array.array, numpy.array containt ints or None.</em>) &#8211; labels of the nodes/elements where the field is evaluated. If None, labels will be [1,2,...,len(data)+1]</li>
+<li><strong>dti</strong> (<em>&#8216;I&#8217;, &#8216;H&#8217;</em>) &#8211; int data type in array.array</li>
+<li><strong>dtf</strong> (<em>&#8216;f&#8217;, &#8216;d&#8217;</em>) &#8211; float data type in array.array</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">FieldOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mf">1.</span><span class="p">,</span><span class="mf">5.</span><span class="p">,</span><span class="mf">3.</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fo</span> <span class="o">=</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">fo</span> <span class="c"># data is sorted by labels</span>
+<span class="go">FieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data</span>
+<span class="go">1     -1.0</span>
+<span class="go">2     3.0</span>
+<span class="go">3     5.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">fo</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="c"># slicing</span>
+<span class="go">FieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data</span>
+<span class="go">1     -1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">fo</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="c"># indexing</span>
+<span class="go">FieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data</span>
+<span class="go">2     3.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">fo</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="c"># multiple indexing</span>
+<span class="go">FieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data</span>
+<span class="go">1     -1.0</span>
+<span class="go">3     5.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">fo</span><span class="o">*</span><span class="mi">2</span> <span class="c"># multiplication</span>
+<span class="go">FieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data</span>
+<span class="go">1     -2.0</span>
+<span class="go">2     6.0</span>
+<span class="go">3     10.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fo2</span> <span class="o">=</span> <span class="n">fo</span><span class="o">**</span><span class="mi">2</span>  <span class="c">#power</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">fo2</span>
+<span class="go">FieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data</span>
+<span class="go">1     1.0</span>
+<span class="go">2     9.0</span>
+<span class="go">3     25.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">fo</span> <span class="o">*</span> <span class="n">fo2</span>
+<span class="go">FieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data</span>
+<span class="go">1     -1.0</span>
+<span class="go">2     27.0</span>
+<span class="go">3     125.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">fo</span> <span class="o">+</span> <span class="n">fo2</span>
+<span class="go">FieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data</span>
+<span class="go">1     0.0</span>
+<span class="go">2     12.0</span>
+<span class="go">3     30.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="nb">abs</span><span class="p">(</span><span class="n">fo</span><span class="p">)</span> 
+<span class="go">FieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data</span>
+<span class="go">1     1.0</span>
+<span class="go">2     3.0</span>
+<span class="go">3     5.0</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If dti=&#8217;H&#8217; is chosen, labels are stored as unsigned 16 bits ints. If more than 65k labels are stored, an OverFlow error will be raised.</p>
+</div>
+</dd></dl>
+
+<div class="section" id="add-remove-get-data">
+<h4>Add/remove/get data<a class="headerlink" href="#add-remove-get-data" title="Permalink to this headline">¶</a></h4>
+<dl class="method">
+<dt id="abapy.postproc.FieldOutput.add_data">
+<tt class="descclassname">FieldOutput.</tt><tt class="descname">add_data</tt><big>(</big><em>label</em>, <em>data</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#FieldOutput.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.FieldOutput.add_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds one point to a FieldOutput instance. Label must not already exist in the current FieldOutput, if not so, nothing will be changed. Data and label will be inserted in self.data, self.labels in order to keep self.labels sorted.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">FieldOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="mf">5.5</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">temperature</span> <span class="o">=</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span> <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">temperature</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">5.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">temperature</span><span class="o">.</span><span class="n">data</span> <span class="c"># labels are sorted</span>
+<span class="go">array(&#39;f&#39;, [5.5, 5.0, 2.200000047683716])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">temperature</span><span class="o">.</span><span class="n">labels</span> <span class="c"># data was sorted like labels</span>
+<span class="go">array(&#39;I&#39;, [1L, 2L, 4L]) </span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>label</strong> &#8211; labels of the nodes/elements where the field is evaluated.</li>
+<li><strong>data</strong> (<em>float</em>) &#8211; value of the field where it is evaluated</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.FieldOutput.get_data">
+<tt class="descclassname">FieldOutput.</tt><tt class="descname">get_data</tt><big>(</big><em>label</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#FieldOutput.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.FieldOutput.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns data at a location with given label.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>label</strong> (<em>int &gt; 0</em>) &#8211; location&#8217;s label.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Requesting data at a label that does not exist in the instance will just lead in a warning but if label is negative or is not int, then an Exception will be raised.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="vtk-export">
+<h4>VTK Export<a class="headerlink" href="#vtk-export" title="Permalink to this headline">¶</a></h4>
+<dl class="method">
+<dt id="abapy.postproc.FieldOutput.dump2vtk">
+<tt class="descclassname">FieldOutput.</tt><tt class="descname">dump2vtk</tt><big>(</big><em>name='fieldOutput'</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#FieldOutput.dump2vtk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.FieldOutput.dump2vtk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the FieldOutput instance to VTK format which can be directly read by Mayavi2 or Paraview. This method is very useful to quickly and efficiently plot 3D mesh and fields.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>string</em>) &#8211; name used for the field in the output.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">FieldOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.mesh</span> <span class="kn">import</span> <span class="n">Mesh</span><span class="p">,</span> <span class="n">Nodes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">,</span><span class="mf">0.</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">1.</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">z</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nodes</span> <span class="o">=</span> <span class="n">Nodes</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="n">z</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mesh</span> <span class="o">=</span> <span class="n">Mesh</span><span class="p">(</span><span class="n">nodes</span><span class="o">=</span><span class="n">nodes</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mesh</span><span class="o">.</span><span class="n">add_element</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="mi">1</span> <span class="p">,</span> <span class="n">connectivity</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span> <span class="n">space</span> <span class="o">=</span> <span class="mi">2</span> <span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&#39;tri3&#39;</span><span class="p">)</span> <span class="c"># triangle element</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nodeField</span> <span class="o">=</span> <span class="n">FieldOutput</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nodeField</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nodeField</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="mf">10.</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nodeField</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">data</span> <span class="o">=</span> <span class="mf">20.</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">elementField</span> <span class="o">=</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s">&#39;element&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">elementField</span><span class="o">.</span><span class="n">add_data</span><span class="p">(</span><span class="n">label</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span><span class="mf">10.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">+=</span><span class="n">mesh</span><span class="o">.</span><span class="n">dump2vtk</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">+=</span><span class="n">nodeField</span><span class="o">.</span><span class="n">dump2vtk</span><span class="p">(</span><span class="s">&#39;nodeField&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">+=</span><span class="n">elementField</span><span class="o">.</span><span class="n">dump2vtk</span><span class="p">(</span><span class="s">&#39;elementField&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">out</span>
+<span class="go"># vtk DataFile Version 2.0</span>
+<span class="go">Unstructured Grid Example</span>
+<span class="go">ASCII</span>
+<span class="go">DATASET UNSTRUCTURED_GRID</span>
+<span class="go">POINTS 3 float</span>
+<span class="go">0.0 0.0 0.0</span>
+<span class="go">1.0 0.0 0.0</span>
+<span class="go">0.0 1.0 0.0</span>
+<span class="go">CELLS 1 4</span>
+<span class="go">3 0 1 2 </span>
+<span class="go">CELL_TYPES 1</span>
+<span class="go">5</span>
+<span class="go">POINT_DATA 3</span>
+<span class="go">SCALARS nodeField float 1</span>
+<span class="go">LOOKUP_TABLE default</span>
+<span class="go">0.0</span>
+<span class="go">10.0</span>
+<span class="go">20.0</span>
+<span class="go">CELL_DATA 1</span>
+<span class="go">SCALARS elementField float 1</span>
+<span class="go">LOOKUP_TABLE default</span>
+<span class="go">10.0</span>
+</pre></div>
+</div>
+<p>Result in Paraview:</p>
+<img alt="_images/FIeldOutput-dump2vkt_paraview.png" src="_images/FIeldOutput-dump2vkt_paraview.png" style="width: 750px;" />
+</dd></dl>
+
+</div>
+<div class="section" id="operations-and-invariants">
+<h4>Operations and invariants<a class="headerlink" href="#operations-and-invariants" title="Permalink to this headline">¶</a></h4>
+</div>
+</div>
+<div class="section" id="vector-fields">
+<h3>Vector fields<a class="headerlink" href="#vector-fields" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="abapy.postproc.VectorFieldOutput">
+<em class="property">class </em><tt class="descclassname">abapy.postproc.</tt><tt class="descname">VectorFieldOutput</tt><big>(</big><em>data1=None</em>, <em>data2=None</em>, <em>data3=None</em>, <em>position='node'</em>, <em>dti='I'</em>, <em>dtf='f'</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#VectorFieldOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.VectorFieldOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>3D vector field output. Using this class instead of 3 scalar FieldOutput instances is efficient because labels are stored only since and allows all vector operations like dot, cross, norm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data1</strong> (<em>FieldOutput instance or None</em>) &#8211; x coordinate</li>
+<li><strong>data2</strong> (<em>FieldOutput instance or None</em>) &#8211; y coordinate</li>
+<li><strong>data3</strong> (<em>FieldOutput instance or None</em>) &#8211; z coordinate</li>
+<li><strong>position</strong> (<em>&#8216;node&#8217; or &#8216;element&#8217;</em>) &#8211; position at which data is computed</li>
+<li><strong>dti</strong> (<em>&#8216;I&#8217; for uint32 or &#8216;H&#8217; for uint16</em>) &#8211; array.array int data type</li>
+<li><strong>dtf</strong> (<em>&#8216;f&#8217; float32 or &#8216;d&#8217; for float64</em>) &#8211; array.array int data type</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">FieldOutput</span><span class="p">,</span> <span class="n">VectorFieldOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data2</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">data1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fo1</span><span class="p">,</span> <span class="n">fo2</span> <span class="o">=</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data1</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="s">&#39;node&#39;</span> <span class="p">),</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data2</span><span class="p">,</span><span class="n">position</span><span class="o">=</span><span class="s">&#39;node&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span> <span class="o">=</span> <span class="n">VectorFieldOutput</span><span class="p">(</span><span class="n">data1</span> <span class="o">=</span> <span class="n">fo1</span><span class="p">,</span> <span class="n">data2</span> <span class="o">=</span> <span class="n">fo2</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector2</span> <span class="o">=</span> <span class="n">VectorFieldOutput</span><span class="p">(</span><span class="n">data2</span> <span class="o">=</span> <span class="n">fo2</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span> <span class="c"># short description</span>
+<span class="go">&lt;VectorFieldOutput instance: 6 locations&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">vector</span> <span class="c"># long description</span>
+<span class="go">VectorFieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data1   Data2   Data3</span>
+<span class="go">1     1.0     1.0     0.0</span>
+<span class="go">2     2.0     1.0     0.0</span>
+<span class="go">3     3.0     1.0     0.0</span>
+<span class="go">4     5.0     1.0     0.0</span>
+<span class="go">5     6.0     1.0     0.0</span>
+<span class="go">6     0.0     1.0     0.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">vector</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="c"># Returns a VectorFieldOutput instance</span>
+<span class="go">VectorFieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data1   Data2   Data3</span>
+<span class="go">6     0.0     1.0     1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">]</span> <span class="c"># Picking label by label</span>
+<span class="go">VectorFieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data1   Data2   Data3</span>
+<span class="go">1     1.0     1.0     1.0</span>
+<span class="go">4     5.0     1.0     1.0</span>
+<span class="go">6     0.0     1.0     1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">6</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="c"># Slicing</span>
+<span class="go">VectorFieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data1   Data2   Data3</span>
+<span class="go">1     1.0     1.0     1.0</span>
+<span class="go">3     3.0     1.0     1.0</span>
+<span class="go">5     6.0     1.0     1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="c"># Returns 3 floats</span>
+<span class="go">(0.0, 1.0, 0.0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span><span class="o">.</span><span class="n">norm</span><span class="p">()</span> <span class="c"># Returns norm</span>
+<span class="go">&lt;FieldOutput instance: 6 locations&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="c"># returns the sum of coords</span>
+<span class="go">&lt;FieldOutput instance: 6 locations&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span> <span class="o">*</span> <span class="n">vector2</span> <span class="c"># Itemwise product (like numpy, unlike matlab)</span>
+<span class="go">&lt;VectorFieldOutput instance: 6 locations&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">vector2</span><span class="p">)</span> <span class="c"># Dot/Scalar product</span>
+<span class="go">&lt;FieldOutput instance: 6 locations&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">vector2</span><span class="p">)</span> <span class="c"># Cross/Vector product</span>
+<span class="go">&lt;VectorFieldOutput instance: 6 locations&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span> <span class="o">+</span> <span class="mi">2</span> <span class="c"># Itemwise addition</span>
+<span class="go">&lt;VectorFieldOutput instance: 6 locations&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span> <span class="o">*</span> <span class="mi">2</span> <span class="c"># Itemwise multiplication</span>
+<span class="go">&lt;VectorFieldOutput instance: 6 locations&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span> <span class="o">/</span> <span class="mi">2</span> <span class="c"># Itemwise division</span>
+<span class="go">&lt;VectorFieldOutput instance: 6 locations&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span> <span class="o">/</span> <span class="n">vector2</span> <span class="c"># Itemwise division between vectors (numpy way)</span>
+<span class="go">Warning: divide by zero encountered in divide</span>
+<span class="go">Warning: invalid value encountered in divide</span>
+<span class="go">&lt;VectorFieldOutput instance: 6 locations&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">abs</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span> <span class="c"># Absolute value</span>
+<span class="go">&lt;VectorFieldOutput instance: 6 locations&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span> <span class="o">**</span> <span class="mi">2</span> <span class="c"># Power</span>
+<span class="go">&lt;VectorFieldOutput instance: 6 locations&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span> <span class="o">**</span> <span class="n">vector</span> <span class="c"># Itemwize power</span>
+<span class="go">&lt;VectorFieldOutput instance: 6 locations&gt;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>data1, data2 and data3 must have same position and label or be None. If one data is None, it is supposed to be zero.</li>
+<li>Storage data dype is the highest standard of all 3 data.</li>
+<li>Numpy is not used in the constructor to allow the creation of instances in Abaqus Python but most other operation require numpy for speed reasons.</li>
+</ul>
+</div>
+</dd></dl>
+
+<div class="section" id="id1">
+<h4>Add/remove/get data<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<dl class="method">
+<dt id="abapy.postproc.VectorFieldOutput.add_data">
+<tt class="descclassname">VectorFieldOutput.</tt><tt class="descname">add_data</tt><big>(</big><em>label</em>, <em>data1=0.0</em>, <em>data2=0.0</em>, <em>data3=0.0</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#VectorFieldOutput.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.VectorFieldOutput.add_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds one point to a VectorFieldOutput instance. Label must not already exist in the current FieldOutput, if not so, nothing will be changed. Data and label will be inserted in self.data, self.labels in order to keep self.labels sorted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>label</strong> &#8211; labels of the nodes/elements where the field is evaluated.</li>
+<li><strong>data1</strong> (<em>float</em>) &#8211; value of the coordinate 1 of the field where it is evaluated.</li>
+<li><strong>data2</strong> (<em>float</em>) &#8211; value of the coordinate 2 of the field where it is evaluated.</li>
+<li><strong>data3</strong> (<em>float</em>) &#8211; value of the coordinate 3 of the field where it is evaluated.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.VectorFieldOutput.get_data">
+<tt class="descclassname">VectorFieldOutput.</tt><tt class="descname">get_data</tt><big>(</big><em>label</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#VectorFieldOutput.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.VectorFieldOutput.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns coordinates at a location with given label.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>label</strong> (<em>int &gt; 0</em>) &#8211; location&#8217;s label.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float, float, float</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Requesting data at a label that does not exist in the instance will just lead in a warning but if label is negative or is not int, then an Exception will be raised.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.VectorFieldOutput.get_coord">
+<tt class="descclassname">VectorFieldOutput.</tt><tt class="descname">get_coord</tt><big>(</big><em>number</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#VectorFieldOutput.get_coord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.VectorFieldOutput.get_coord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a coordinate of the vector as a FieldOutput.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<em>1,2 or 3</em>) &#8211; requested coordinate number, 1 is x and so on.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">FieldOutput instance</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <span class="n">Vec</span><span class="o">.</span><span class="n">get_coord</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="id2">
+<h4>VTK Export<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h4>
+<dl class="method">
+<dt id="abapy.postproc.VectorFieldOutput.dump2vtk">
+<tt class="descclassname">VectorFieldOutput.</tt><tt class="descname">dump2vtk</tt><big>(</big><em>name='vectorFieldOutput'</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#VectorFieldOutput.dump2vtk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.VectorFieldOutput.dump2vtk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the VectorFieldOutput instance to VTK format which can be directly read by Mayavi2 or Paraview. This method is very useful to quickly and efficiently plot 3D mesh and fields.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>string</em>) &#8211; name used for the field in the output.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">FieldOutput</span><span class="p">,</span> <span class="n">VectorFieldOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.mesh</span> <span class="kn">import</span> <span class="n">RegularQuadMesh</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mesh</span> <span class="o">=</span> <span class="n">RegularQuadMesh</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data2</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">data1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fo1</span><span class="p">,</span> <span class="n">fo2</span> <span class="o">=</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data1</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="s">&#39;node&#39;</span> <span class="p">),</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data2</span><span class="p">,</span><span class="n">position</span><span class="o">=</span><span class="s">&#39;node&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span> <span class="o">=</span> <span class="n">VectorFieldOutput</span><span class="p">(</span><span class="n">data1</span> <span class="o">=</span> <span class="n">fo1</span><span class="p">,</span> <span class="n">data2</span> <span class="o">=</span> <span class="n">fo2</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">dump2vtk</span><span class="p">()</span> <span class="o">+</span> <span class="n">vector</span><span class="o">.</span><span class="n">dump2vtk</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;vector.vtk&#39;</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="operations">
+<h4>Operations<a class="headerlink" href="#operations" title="Permalink to this headline">¶</a></h4>
+<dl class="method">
+<dt id="abapy.postproc.VectorFieldOutput.norm">
+<tt class="descclassname">VectorFieldOutput.</tt><tt class="descname">norm</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#VectorFieldOutput.norm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.VectorFieldOutput.norm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes norm of the vector at each location and returns it as a scalar FieldOutput.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">norm</span> <span class="o">=</span> <span class="n">Vec</span><span class="o">.</span><span class="n">norm</span><span class="p">()</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">FieldOutput instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.VectorFieldOutput.sum">
+<tt class="descclassname">VectorFieldOutput.</tt><tt class="descname">sum</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#VectorFieldOutput.sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.VectorFieldOutput.sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sum of all coordinates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">FieldOutput instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.VectorFieldOutput.dot">
+<tt class="descclassname">VectorFieldOutput.</tt><tt class="descname">dot</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#VectorFieldOutput.dot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.VectorFieldOutput.dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the dot (<em>i. e.</em> scalar) product of two vector field outputs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> (<tt class="docutils literal"><span class="pre">VectorFieldOutput</span></tt>) &#8211; Another vector field</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">FieldOutput</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.VectorFieldOutput.cross">
+<tt class="descclassname">VectorFieldOutput.</tt><tt class="descname">cross</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#VectorFieldOutput.cross"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.VectorFieldOutput.cross" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the cross product of two vector field outputs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> (<tt class="docutils literal"><span class="pre">VectorFieldOutput</span></tt>) &#8211; Another vector field</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">VectorFieldOutput</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="tensor-fields">
+<h3>Tensor fields<a class="headerlink" href="#tensor-fields" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="abapy.postproc.TensorFieldOutput">
+<em class="property">class </em><tt class="descclassname">abapy.postproc.</tt><tt class="descname">TensorFieldOutput</tt><big>(</big><em>data11=None</em>, <em>data22=None</em>, <em>data33=None</em>, <em>data12=None</em>, <em>data13=None</em>, <em>data23=None</em>, <em>position='node'</em>, <em>dti='I'</em>, <em>dtf='f'</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Symmetric tensor field output. Using this class instead of 6 scalar FieldOutput instances is efficient because labels are stored only since and allows all operations like invariants, product, sum...</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>data11</strong> (<em>FieldOutput instance or None</em>) &#8211; 11 component</li>
+<li><strong>data22</strong> (<em>FieldOutput instance or None</em>) &#8211; 22 component</li>
+<li><strong>data33</strong> (<em>FieldOutput instance or None</em>) &#8211; 33 component</li>
+<li><strong>data12</strong> (<em>FieldOutput instance or None</em>) &#8211; 12 component</li>
+<li><strong>data13</strong> (<em>FieldOutput instance or None</em>) &#8211; 13 component</li>
+<li><strong>data23</strong> (<em>FieldOutput instance or None</em>) &#8211; 23 component</li>
+<li><strong>position</strong> (<em>&#8216;node&#8217; or &#8216;element&#8217;</em>) &#8211; position at which data is computed</li>
+<li><strong>dti</strong> (<em>&#8216;I&#8217; for uint32 or &#8216;H&#8217; for uint16</em>) &#8211; array.array int data type</li>
+<li><strong>dtf</strong> (<em>&#8216;f&#8217; float32 or &#8216;d&#8217; for float64</em>) &#8211; array.array int data type</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">FieldOutput</span><span class="p">,</span> <span class="n">TensorFieldOutput</span><span class="p">,</span> <span class="n">VectorFieldOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data11</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data22</span> <span class="o">=</span> <span class="p">[</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data12</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">data11</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fo11</span> <span class="o">=</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data11</span><span class="p">,</span><span class="n">position</span><span class="o">=</span><span class="s">&#39;node&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fo22</span> <span class="o">=</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data22</span><span class="p">,</span><span class="n">position</span><span class="o">=</span><span class="s">&#39;node&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fo12</span> <span class="o">=</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data12</span><span class="p">,</span><span class="n">position</span><span class="o">=</span><span class="s">&#39;node&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span> <span class="o">=</span> <span class="n">TensorFieldOutput</span><span class="p">(</span><span class="n">data11</span> <span class="o">=</span> <span class="n">fo11</span><span class="p">,</span> <span class="n">data22</span> <span class="o">=</span> <span class="n">fo22</span><span class="p">,</span> <span class="n">data12</span> <span class="o">=</span> <span class="n">fo12</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tensor2</span> <span class="o">=</span> <span class="n">TensorFieldOutput</span><span class="p">(</span><span class="n">data11</span><span class="o">=</span> <span class="n">fo22</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span>
+<span class="go">&lt;TensorFieldOutput instance: 3 locations&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">tensor</span>
+<span class="go">TensorFieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data11  Data22  Data33  Data12  Data13  Data23</span>
+<span class="go">1     1.0e+00 2.0e+00 0.0e+00 1.0e+00 0.0e+00 0.0e+00</span>
+<span class="go">2     1.0e+00 4.0e+00 0.0e+00 2.0e+00 0.0e+00 0.0e+00</span>
+<span class="go">3     1.0e+00 -1.0e+00        0.0e+00 0.0e+00 0.0e+00 0.0e+00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">tensor</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span> 
+<span class="go">TensorFieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data11  Data22  Data33  Data12  Data13  Data23</span>
+<span class="go">1     1.0e+00 2.0e+00 0.0e+00 1.0e+00 0.0e+00 0.0e+00</span>
+<span class="go">2     1.0e+00 4.0e+00 0.0e+00 2.0e+00 0.0e+00 0.0e+00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">tensor</span> <span class="o">*</span><span class="mf">2.</span> <span class="o">+</span> <span class="mf">1.</span>
+<span class="go">TensorFieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data11  Data22  Data33  Data12  Data13  Data23</span>
+<span class="go">1     3.0e+00 5.0e+00 1.0e+00 3.0e+00 1.0e+00 1.0e+00</span>
+<span class="go">2     3.0e+00 9.0e+00 1.0e+00 5.0e+00 1.0e+00 1.0e+00</span>
+<span class="go">3     3.0e+00 -1.0e+00        1.0e+00 1.0e+00 1.0e+00 1.0e+00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">tensor</span> <span class="o">**</span> <span class="mi">2</span> <span class="c"># Piecewise power</span>
+<span class="go">TensorFieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data11  Data22  Data33  Data12  Data13  Data23</span>
+<span class="go">1     1.0e+00 4.0e+00 0.0e+00 1.0e+00 0.0e+00 0.0e+00</span>
+<span class="go">2     1.0e+00 1.6e+01 0.0e+00 4.0e+00 0.0e+00 0.0e+00</span>
+<span class="go">3     1.0e+00 1.0e+00 0.0e+00 0.0e+00 0.0e+00 0.0e+00</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vector</span> <span class="o">=</span> <span class="n">VectorFieldOutput</span><span class="p">(</span><span class="n">data1</span> <span class="o">=</span> <span class="n">fo11</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">tensor</span> <span class="o">*</span> <span class="n">vector</span> <span class="c"># Matrix product</span>
+<span class="go">VectorFieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data1   Data2   Data3</span>
+<span class="go">1     1.0     1.0     0.0</span>
+<span class="go">2     1.0     2.0     0.0</span>
+<span class="go">3     1.0     0.0     0.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">tensor</span> <span class="o">*</span> <span class="n">tensor2</span> <span class="c"># Contracted tensor product</span>
+<span class="go">FieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data</span>
+<span class="go">1     2.0</span>
+<span class="go">2     4.0</span>
+<span class="go">3     -1.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="section" id="id3">
+<h4>Add/remove/get data<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.add_data">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">add_data</tt><big>(</big><em>label</em>, <em>data11=0.0</em>, <em>data22=0.0</em>, <em>data33=0.0</em>, <em>data12=0.0</em>, <em>data13=0.0</em>, <em>data23=0.0</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.add_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds one point to a VectorFieldOutput instance. Label must not already exist in the current FieldOutput, if not so, nothing will be changed. Data and label will be inserted in self.data, self.labels in order to keep self.labels sorted.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>label</strong> &#8211; labels of the nodes/elements where the field is evaluated.</li>
+<li><strong>data11</strong> &#8211; value of the component 11 of the field where it is evaluated.</li>
+<li><strong>data22</strong> &#8211; value of the component 22 of the field where it is evaluated.</li>
+<li><strong>data33</strong> &#8211; value of the component 33 of the field where it is evaluated.</li>
+<li><strong>data12</strong> &#8211; value of the component 12 of the field where it is evaluated.</li>
+<li><strong>data13</strong> &#8211; value of the component 13 of the field where it is evaluated.</li>
+<li><strong>data23</strong> &#8211; value of the component 23 of the field where it is evaluated.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.get_data">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">get_data</tt><big>(</big><em>label</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.get_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.get_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the components (<em>11, 22, 33, 12, 13 or 23</em>) at a location with given label.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>label</strong> (<em>int &gt; 0</em>) &#8211; location&#8217;s label.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float, float, float, float, float, float</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Requesting data at a label that does not exist in the instance will just lead in a warning but if label is negative or is not int, then an Exception will be raised.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.get_component">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">get_component</tt><big>(</big><em>number</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.get_component"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.get_component" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a component of the vector as a FieldOutput.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>number</strong> (<em>11, 22, 33, 12, 13 or 23</em>) &#8211; requested coordinate number, 1 is x and so on.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">FieldOutput instance</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">v1</span> <span class="o">=</span> <span class="n">Vec</span><span class="o">.</span><span class="n">get_coord</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="id4">
+<h4>VTK Export<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.dump2vtk">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">dump2vtk</tt><big>(</big><em>name='tensorFieldOutput'</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.dump2vtk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.dump2vtk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the TensorFieldOutput instance to VTK format which can be directly read by Mayavi2 or Paraview. This method is very useful to quickly and efficiently plot 3D mesh and fields.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>string</em>) &#8211; name used for the field in the output.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">this method has not been fully tested yet, bugs are probably still in.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="id5">
+<h4>Operations and invariants<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.sum">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">sum</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.sum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the sum of all components of the tensor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">FieldOutput</span></tt> instance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.trace">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">trace</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the trace of the tensor: <img src="_images/mathmpl/math-b65457aad5.png" style="position: relative; bottom: -8px"/></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">FieldOutput</span></tt> instance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.deviatoric">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">deviatoric</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.deviatoric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.deviatoric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the deviatoric part tensor: <img src="_images/mathmpl/math-397a39e5ce.png" style="position: relative; bottom: -8px"/></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">TensorFieldOutput</span></tt> instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.spheric">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">spheric</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.spheric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.spheric" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the spheric part of the tensor: <img src="_images/mathmpl/math-505cee7efe.png" style="position: relative; bottom: -11px"/></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">TensorFieldOutput</span></tt> instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.i1">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">i1</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.i1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.i1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the first invariant, is equivalent to trace.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">FieldOutput</span></tt> instance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.i2">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">i2</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.i2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.i2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the second invariant of the tensor defined as: <img src="_images/mathmpl/math-4c613f6e1c.png" style="position: relative; bottom: -8px"/></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">FieldOutput</span></tt> instance.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">this definition is the most practical one for mechanical engineering but not the only one possible.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.i3">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">i3</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.i3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.i3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the third invariant of the tensor: <img src="_images/mathmpl/math-5d22ffb919.png" style="position: relative; bottom: -8px"/></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">FieldOutput</span></tt> instance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.j2">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">j2</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.j2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.j2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the second invariant of the deviatoric part of the tensor defined as: <img src="_images/mathmpl/math-751186351e.png" style="position: relative; bottom: -8px"/></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">FieldOutput</span></tt> instance.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">this definition is not the mathematical definition but is the most practical one for mechanical engineering. This should be debated.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.j3">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">j3</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.j3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.j3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the third invariant of the deviatoric part of the tensor: <img src="_images/mathmpl/math-4c9c35d4c0.png" style="position: relative; bottom: -8px"/></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">FieldOutput</span></tt> instance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.eigen">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">eigen</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.eigen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.eigen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the three eigenvalues with decreasing sorting and the 3 normed respective eigenvectors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">3 <tt class="docutils literal"><span class="pre">FieldOutput</span></tt> instances and 3 <tt class="docutils literal"><span class="pre">VectorFieldOutput</span></tt> instances.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">FieldOutput</span><span class="p">,</span> <span class="n">TensorFieldOutput</span><span class="p">,</span> <span class="n">VectorFieldOutput</span><span class="p">,</span> <span class="n">Identity_like</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data11</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data22</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data12</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">data11</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fo11</span> <span class="o">=</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data11</span><span class="p">,</span><span class="n">position</span><span class="o">=</span><span class="s">&#39;node&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fo22</span> <span class="o">=</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data22</span><span class="p">,</span><span class="n">position</span><span class="o">=</span><span class="s">&#39;node&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fo12</span> <span class="o">=</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data12</span><span class="p">,</span><span class="n">position</span><span class="o">=</span><span class="s">&#39;node&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span> <span class="o">=</span> <span class="n">TensorFieldOutput</span><span class="p">(</span><span class="n">data11</span> <span class="o">=</span> <span class="n">fo11</span><span class="p">,</span> <span class="n">data22</span> <span class="o">=</span> <span class="n">fo22</span><span class="p">,</span> <span class="n">data12</span> <span class="o">=</span> <span class="n">fo12</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t1</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">t3</span><span class="p">,</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">v3</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">eigen</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">t1</span>
+<span class="go">FieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label       Data</span>
+<span class="go">1   1.0</span>
+<span class="go">2   2.0</span>
+<span class="go">3   1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">v1</span>
+<span class="go">VectorFieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label       Data1   Data2   Data3</span>
+<span class="go">1   0.707106769085  0.707106769085  0.0</span>
+<span class="go">2   0.707106769085  0.707106769085  0.0</span>
+<span class="go">3   1.0     0.0     0.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.pressure">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">pressure</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.pressure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.pressure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the pressure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">FieldOutput</span></tt> instance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.vonmises">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">vonmises</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.vonmises"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.vonmises" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the von Mises equivalent equivalent <em>stress</em> of the tensor: <img src="_images/mathmpl/math-6741a72a35.png" style="position: relative; bottom: -11px"/></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">FieldOutput</span></tt> instance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.TensorFieldOutput.tresca">
+<tt class="descclassname">TensorFieldOutput.</tt><tt class="descname">tresca</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#TensorFieldOutput.tresca"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.TensorFieldOutput.tresca" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the tresca equivalent <em>stress</em> of the tensor: <img src="_images/mathmpl/math-7d173fe083.png" style="position: relative; bottom: -8px"/> where <img src="_images/mathmpl/math-a3bb217c3e.png" style="position: relative; bottom: -8px"/> is the i-est eigen value of T.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><tt class="docutils literal"><span class="pre">FieldOutput</span></tt> instance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="getting-field-outputs-from-an-abaqus-odb">
+<h3>Getting field outputs from an Abaqus ODB<a class="headerlink" href="#getting-field-outputs-from-an-abaqus-odb" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id6">
+<h4>Scalar fields<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt id="abapy.postproc.GetFieldOutput">
+<tt class="descclassname">abapy.postproc.</tt><tt class="descname">GetFieldOutput</tt><big>(</big><em>odb</em>, <em>step</em>, <em>frame</em>, <em>instance</em>, <em>position</em>, <em>field</em>, <em>subField=None</em>, <em>labels=None</em>, <em>dti='I'</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#GetFieldOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.GetFieldOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves a field output in an Abaqus odb object and stores it in a FieldOutput class instance. Field output that are classically available at integration points must be interpolated at nodes. This can be requested in the Abaqus <em>inp</em> file using: <em>Element Output, position = nodes</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>odb</strong> (<em>odb object.</em>) &#8211; odb object produced by odbAccess.openOdb in abaqus python or abaqus viewer -noGUI</li>
+<li><strong>step</strong> (<em>string</em>) &#8211; step name defined in the abaqus inp file. May be the upper case version of original string name.</li>
+<li><strong>frame</strong> (<em>int</em>) &#8211; requested frame indice in the odb.</li>
+<li><strong>instance</strong> (<em>string</em>) &#8211; instance name defined in the abaqus odb file. May be the upper case version of the original name.</li>
+<li><strong>position</strong> (<em>&#8216;node&#8217;, &#8216;element&#8217;</em>) &#8211; position at which the output is to be computed.</li>
+<li><strong>field</strong> (<em>string</em>) &#8211; requested field output (&#8216;LE&#8217;,&#8217;S&#8217;,&#8217;U&#8217;,&#8217;AC YIELD&#8217;,...).</li>
+<li><strong>subField</strong> (<em>string or None</em>) &#8211; requested subfield in the case of non scalar fields, can be a component (U1, S12) or an invariant (mises, tresca, inv3, maxPrincipal). In the case of scalar fields, it has to be None</li>
+<li><strong>labels</strong> (<em>list, array.array, numpy.array of unsigned non zero ints or string</em>) &#8211; if not None, it provides a set of locations (elements/nodes labels or node/element set label) where the field is to be computed. if None, every available location is used and labels are sorted</li>
+<li><strong>dti</strong> (<em>&#8216;I&#8217;, &#8216;H&#8217;</em>) &#8211; int data type in <tt class="docutils literal"><span class="pre">array.array</span></tt></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><tt class="docutils literal"><span class="pre">FieldOutput</span></tt> instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This function can only be executed in abaqus python or abaqus viewer -noGUI</p>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">GetFieldOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">odbAccess</span> <span class="kn">import</span> <span class="n">openOdb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb</span> <span class="o">=</span> <span class="n">openOdb</span><span class="p">(</span><span class="s">&#39;indentation.odb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">U2</span> <span class="o">=</span> <span class="n">GetFieldOutput</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="s">&#39;LOADING0&#39;</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">instance</span> <span class="o">=</span><span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> <span class="n">position</span> <span class="o">=</span>  <span class="s">&#39;node&#39;</span><span class="p">,</span> <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;U&#39;</span><span class="p">,</span> <span class="n">subField</span> <span class="o">=</span> <span class="s">&#39;U1&#39;</span><span class="p">)</span> <span class="c"># Gets U2 at all nodes of instance &#39;I_SAMPLE&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">U1</span> <span class="o">=</span> <span class="n">GetFieldOutput</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="s">&#39;LOADING0&#39;</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">instance</span> <span class="o">=</span><span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> <span class="n">position</span> <span class="o">=</span>  <span class="s">&#39;node&#39;</span><span class="p">,</span> <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;U&#39;</span><span class="p">,</span> <span class="n">subField</span> <span class="o">=</span> <span class="s">&#39;U1&#39;</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span> <span class="c"># Here labels refer to nodes 5 and 6</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S11</span> <span class="o">=</span> <span class="n">GetFieldOutput</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="s">&#39;LOADING0&#39;</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">instance</span> <span class="o">=</span><span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> <span class="n">position</span> <span class="o">=</span>  <span class="s">&#39;node&#39;</span><span class="p">,</span> <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="n">subField</span> <span class="o">=</span> <span class="s">&#39;S11&#39;</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="s">&#39;CORE&#39;</span><span class="p">)</span> <span class="c"># Here labels refers to nodes belonging to the node set &#39;CORE&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S12</span> <span class="o">=</span> <span class="n">GetFieldOutput</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="s">&#39;LOADING0&#39;</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">instance</span> <span class="o">=</span><span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> <span class="n">position</span> <span class="o">=</span>  <span class="s">&#39;element&#39;</span><span class="p">,</span> <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> <span class="n">subField</span> <span class="o">=</span> <span class="s">&#39;S12&#39;</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="s">&#39;CORE&#39;</span><span class="p">)</span> <span class="c"># Here labels refers to nodes belonging to the node set &#39;CORE&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<ul class="last simple">
+<li>If dti=&#8217;H&#8217; is chosen, labels are stored as unsigned 16 bits ints. If more than 65k labels are stored, an OverFlow error will be raised.</li>
+<li>This function had memory usage problems in its early version, these have been solved by using more widely array.array. It is still a bit slow but with the lack of numpy in Abaqus, no better solutions have been found yet. I&#8217;m open to any faster solution even involving the used temporary rpt files procuced by Abaqus</li>
+</ul>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="abapy.postproc.MakeFieldOutputReport">
+<tt class="descclassname">abapy.postproc.</tt><tt class="descname">MakeFieldOutputReport</tt><big>(</big><em>odb</em>, <em>instance</em>, <em>step</em>, <em>frame</em>, <em>report_name</em>, <em>original_position</em>, <em>new_position</em>, <em>field</em>, <em>sub_field=None</em>, <em>sub_set_type=None</em>, <em>sub_set=None</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#MakeFieldOutputReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.MakeFieldOutputReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a field output report using Abaqus. The major interrest of this function is that it is really fast compared to <tt class="docutils literal"><span class="pre">GetFieldOutput</span></tt> which tends to get badly slow on odbs containing more than 1500 elements. One other interrest is that it doesn&#8217;t require to used <tt class="docutils literal"><span class="pre">position</span> <span class="pre">=</span> <span class="pre">nodes</span></tt> option in the INP file to evaluate fields at nodes. It is especially efficient when averaging is necessary (example: computing stress at nodes). The two drawbacks are that it requires <tt class="docutils literal"><span class="pre">abaqus</span> <span class="pre">viewer</span></tt> (or <tt class="docutils literal"><span class="pre">cae</span></tt>) using the <tt class="docutils literal"><span class="pre">-noGUI</span></tt> where GetFieldOutput only requires <tt class="docutils literal"><span class="pre">abaqus</span> <span class="pre">python</span></tt> so it depends on the license server lag (which can be of several seconds). The second drawback is that it requires to write a file in place where you have write permission. This function is made to used in conjunction with <tt class="docutils literal"><span class="pre">ReadFieldOutputReport</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>odb</strong> (odb instance produced by <tt class="docutils literal"><span class="pre">odbAccess.openOdb</span></tt>) &#8211; output database to be used.</li>
+<li><strong>instance</strong> (<em>string</em>) &#8211; instance to use.</li>
+<li><strong>step</strong> (<em>string or int</em>) &#8211; step to use, this argument can be either the step number or the step label.</li>
+<li><strong>frame</strong> (<em>int</em>) &#8211; frame number, can be negative for reverse counting.</li>
+<li><strong>report_name</strong> (<em>string</em>) &#8211; name or path+name of the report to written.</li>
+<li><strong>original_position</strong> &#8211; position at which the field is expressed. Can be &#8216;NODAL&#8217;, &#8216;WHOLE_ELEMENT&#8217; or &#8216;INTEGRATION_POINT&#8217;.</li>
+<li><strong>new_position</strong> (<em>string</em>) &#8211; position at which you would like the field to be expressed. Can be &#8216;NODAL&#8217;, &#8216;WHOLE_ELEMENT&#8217; or &#8216;INTEGRATION_POINT&#8217; or &#8216;ELEMENT_NODAL&#8217;. Note that <tt class="docutils literal"><span class="pre">ReadFieldOutputReport</span></tt> will be capable of averaging values over elements when &#8216;INTEGRATION_POINT&#8217; or &#8216;ELEMENT_NODAL&#8217; option is sellected.</li>
+<li><strong>field</strong> (<em>string</em>) &#8211; field to export, example: &#8216;S&#8217;, &#8216;U&#8217;, &#8216;EVOL&#8217;,...</li>
+<li><strong>sub_field</strong> (<em>string or int</em>) &#8211; can be a component of an invariant, example: 11, 2, &#8216;Mises&#8217;, &#8216;Magnitude&#8217;. Here the use of &#8216;Mises&#8217; instead of &#8216;MISES&#8217; can be surprising that&#8217;s the way abaqus is written..</li>
+<li><strong>sub_set</strong> (<em>string</em>) &#8211; set to which the report is restricted, must be the label of an existing node or element set.</li>
+<li><strong>sub_set_type</strong> (<em>string</em>) &#8211; type of the sub_set, can be node or element.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>All examples below are performed on a small indentation ODB: 
+<a class="reference download internal" href="_downloads/indentation.odb"><tt class="xref download docutils literal"><span class="pre">indentation.odb</span></tt></a></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">odbAccess</span> <span class="kn">import</span> <span class="n">openOdb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">MakeFieldOutputReport</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Some settings</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb_name</span> <span class="o">=</span> <span class="s">&#39;indentation.odb&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report_name</span> <span class="o">=</span> <span class="s">&#39;indentation_core_step0_frame1_S11_nodes.rpt&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">step</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">field</span> <span class="o">=</span> <span class="s">&#39;S&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sub_field</span> <span class="o">=</span> <span class="mi">11</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sub_set</span> <span class="o">=</span> <span class="s">&#39;CORE&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># Function testing</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb</span> <span class="o">=</span> <span class="n">openOdb</span><span class="p">(</span><span class="n">odb_name</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MakeFieldOutputReport</span><span class="p">(</span>
+<span class="gp">... </span>  <span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">instance</span> <span class="o">=</span> <span class="n">instance</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">step</span> <span class="o">=</span> <span class="n">step</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">report_name</span> <span class="o">=</span> <span class="n">report_name</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">original_position</span> <span class="o">=</span> <span class="n">original_position</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">new_position</span> <span class="o">=</span> <span class="n">new_position</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_field</span> <span class="o">=</span> <span class="n">sub_field</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_set_type</span> <span class="o">=</span> <span class="n">sub_set_type</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_set</span> <span class="o">=</span> <span class="n">sub_set</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report_name</span> <span class="o">=</span> <span class="s">&#39;indentation_core_step0_frame1_S11_elements.rpt&#39;</span>   
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MakeFieldOutputReport</span><span class="p">(</span>
+<span class="gp">... </span>  <span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">instance</span> <span class="o">=</span> <span class="n">instance</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">step</span> <span class="o">=</span> <span class="n">step</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">report_name</span> <span class="o">=</span> <span class="n">report_name</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">original_position</span> <span class="o">=</span> <span class="n">original_position</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">new_position</span> <span class="o">=</span> <span class="n">new_position</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_field</span> <span class="o">=</span> <span class="n">sub_field</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_set_type</span> <span class="o">=</span> <span class="n">sub_set_type</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_set</span> <span class="o">=</span> <span class="n">sub_set</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;ELEMENT_NODAL&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report_name</span> <span class="o">=</span> <span class="s">&#39;indentation_core_step0_frame1_S11_element-nodal.rpt&#39;</span>   
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MakeFieldOutputReport</span><span class="p">(</span>
+<span class="gp">... </span>  <span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">instance</span> <span class="o">=</span> <span class="n">instance</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">step</span> <span class="o">=</span> <span class="n">step</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">report_name</span> <span class="o">=</span> <span class="n">report_name</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">original_position</span> <span class="o">=</span> <span class="n">original_position</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">new_position</span> <span class="o">=</span> <span class="n">new_position</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_field</span> <span class="o">=</span> <span class="n">sub_field</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_set_type</span> <span class="o">=</span> <span class="n">sub_set_type</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_set</span> <span class="o">=</span> <span class="n">sub_set</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">field</span> <span class="o">=</span> <span class="s">&#39;U&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sub_field</span> <span class="o">=</span> <span class="s">&#39;Magnitude&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report_name</span> <span class="o">=</span> <span class="s">&#39;indentation_core_step0_frame1_U-MAG_nodal.rpt&#39;</span>   
+<span class="gp">&gt;&gt;&gt; </span><span class="n">MakeFieldOutputReport</span><span class="p">(</span>
+<span class="gp">... </span>  <span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">instance</span> <span class="o">=</span> <span class="n">instance</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">step</span> <span class="o">=</span> <span class="n">step</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">report_name</span> <span class="o">=</span> <span class="n">report_name</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">original_position</span> <span class="o">=</span> <span class="n">original_position</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">new_position</span> <span class="o">=</span> <span class="n">new_position</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">field</span> <span class="o">=</span> <span class="n">field</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_field</span> <span class="o">=</span> <span class="n">sub_field</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_set_type</span> <span class="o">=</span> <span class="n">sub_set_type</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_set</span> <span class="o">=</span> <span class="n">sub_set</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>Four reports were produced:</dt>
+<dd><ul class="first last simple">
+<li><a class="reference download internal" href="_downloads/indentation_core_step0_frame1_S11_nodes.rpt"><tt class="xref download docutils literal"><span class="pre">indentation_core_step0_frame1_S11_nodes.rpt</span></tt></a></li>
+<li><a class="reference download internal" href="_downloads/indentation_core_step0_frame1_S11_elements.rpt"><tt class="xref download docutils literal"><span class="pre">indentation_core_step0_frame1_S11_elements.rpt</span></tt></a></li>
+<li><a class="reference download internal" href="_downloads/indentation_core_step0_frame1_S11_element-nodal.rpt"><tt class="xref download docutils literal"><span class="pre">indentation_core_step0_frame1_S11_element-nodal.rpt</span></tt></a></li>
+<li><a class="reference download internal" href="_downloads/indentation_core_step0_frame1_U-MAG_nodal.rpt"><tt class="xref download docutils literal"><span class="pre">indentation_core_step0_frame1_U-MAG_nodal.rpt</span></tt></a></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="abapy.postproc.ReadFieldOutputReport">
+<tt class="descclassname">abapy.postproc.</tt><tt class="descname">ReadFieldOutputReport</tt><big>(</big><em>report_name</em>, <em>position='node'</em>, <em>dti='I'</em>, <em>dtf='f'</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#ReadFieldOutputReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.ReadFieldOutputReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads a report file generated by Abaqus (for example using <tt class="docutils literal"><span class="pre">MakeFieldOutputReport</span></tt> and converts it in FieldOutputFormat.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>report_name</strong> (<em>string</em>) &#8211; report_name or path + name of the report to read.</li>
+<li><strong>position</strong> (<em>&#8216;node&#8217; or &#8216;element&#8217;</em>) &#8211; position where the <tt class="docutils literal"><span class="pre">FieldOutput</span></tt> is to be declared. The function will look at the first and the last column of the report. The first will be considered as the label (<em>i. e.</em> element or node) and the last the value. In some case, like reports written using &#8216;ELEMENT_NODAL&#8217; or &#8216;INTEGRATION_POINT&#8217; locations, each label will appear several times. The present function will collect all the corresponding values and average them. At the end, the only possibilities for this parameter should be &#8216;node&#8217; or &#8216;element&#8217; as described in the doc of <tt class="docutils literal"><span class="pre">FieldOutput</span></tt>.</li>
+<li><strong>dti</strong> (<em>&#8216;I&#8217;, &#8216;H&#8217;</em>) &#8211; int data type in array.array</li>
+<li><strong>dtf</strong> (<em>&#8216;f&#8217;, &#8216;d&#8217;</em>) &#8211; float data type in array.array</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><tt class="docutils literal"><span class="pre">FieldOutput</span></tt> instance.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This function can be run either in abaqus python, abaqus viewer -noGUI, abaqus cae -noGUI and regular python.</p>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">ReadFieldOutputReport</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">report_name</span> <span class="o">=</span> <span class="s">&#39;indentation_core_step0_frame1_S11_nodes.rpt&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S11</span> <span class="o">=</span> <span class="n">ReadFieldOutputReport</span><span class="p">(</span><span class="n">report_name</span><span class="p">,</span> <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;nodes&#39;</span><span class="p">,</span> <span class="n">dti</span> <span class="o">=</span> <span class="s">&#39;I&#39;</span><span class="p">,</span> <span class="n">dtf</span> <span class="o">=</span> <span class="s">&#39;f&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="abapy.postproc.GetFieldOutput_byRpt">
+<tt class="descclassname">abapy.postproc.</tt><tt class="descname">GetFieldOutput_byRpt</tt><big>(</big><em>odb</em>, <em>instance</em>, <em>step</em>, <em>frame</em>, <em>original_position</em>, <em>new_position</em>, <em>position</em>, <em>field</em>, <em>sub_field=None</em>, <em>sub_set_type=None</em>, <em>sub_set=None</em>, <em>report_name='dummy.rpt'</em>, <em>dti='I'</em>, <em>dtf='f'</em>, <em>delete_report=True</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#GetFieldOutput_byRpt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.GetFieldOutput_byRpt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wraps <tt class="docutils literal"><span class="pre">MakeFieldOutputReport</span></tt> and <tt class="docutils literal"><span class="pre">ReadFieldOutputReport</span></tt> in a single function to mimic the behavior <tt class="docutils literal"><span class="pre">GetFieldOutput</span></tt>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>odb</strong> (odb instance produced by <tt class="docutils literal"><span class="pre">odbAccess.openOdb</span></tt>) &#8211; output database to be used.</li>
+<li><strong>instance</strong> (<em>string</em>) &#8211; instance to use.</li>
+<li><strong>step</strong> (<em>string or int</em>) &#8211; step to use, this argument can be either the step number or the step label.</li>
+<li><strong>frame</strong> (<em>int</em>) &#8211; frame number, can be negative for reverse counting.</li>
+<li><strong>original_position</strong> &#8211; position at which the field is expressed. Can be &#8216;NODAL&#8217;, &#8216;WHOLE_ELEMENT&#8217; or &#8216;INTEGRATION_POINT&#8217;.</li>
+<li><strong>new_position</strong> (<em>string</em>) &#8211; position at which you would like the field to be expressed. Can be &#8216;NODAL&#8217;, &#8216;WHOLE_ELEMENT&#8217; or &#8216;INTEGRATION_POINT&#8217; or &#8216;ELEMENT_NODAL&#8217;. Note that <tt class="docutils literal"><span class="pre">ReadFieldOutputReport</span></tt> will be capable of averaging values over elements when &#8216;INTEGRATION_POINT&#8217; or &#8216;ELEMENT_NODAL&#8217; option is sellected.</li>
+<li><strong>position</strong> (<em>&#8216;node&#8217; or &#8216;element&#8217;</em>) &#8211; position where the <tt class="docutils literal"><span class="pre">FieldOutput</span></tt> is to be declared. The function will look at the first and the last column of the report. The first will be considered as the label (<em>i. e.</em> element or node) and the last the value. In some case, like reports written using &#8216;ELEMENT_NODAL&#8217; or &#8216;INTEGRATION_POINT&#8217; locations, each label will appear several times. The present function will collect all the corresponding values and average them. At the end, the only possibilities for this parameter should be &#8216;node&#8217; or &#8216;element&#8217; as described in the doc of <tt class="docutils literal"><span class="pre">FieldOutput</span></tt>.</li>
+<li><strong>field</strong> (<em>string</em>) &#8211; field to export, example: &#8216;S&#8217;, &#8216;U&#8217;, &#8216;EVOL&#8217;,...</li>
+<li><strong>sub_field</strong> (<em>string or int</em>) &#8211; can be a component of an invariant, example: 11, 2, &#8216;Mises&#8217;, &#8216;Magnitude&#8217;.</li>
+<li><strong>sub_set</strong> (<em>string</em>) &#8211; set to which the report is restricted, must be the label of an existing node or element set.</li>
+<li><strong>sub_set_type</strong> (<em>string</em>) &#8211; type of the sub_set, can be node or element.</li>
+<li><strong>report_name</strong> (<em>string</em>) &#8211; name or path+name of the report to written.</li>
+<li><strong>dti</strong> (<em>&#8216;I&#8217;, &#8216;H&#8217;</em>) &#8211; int data type in array.array</li>
+<li><strong>dtf</strong> (<em>&#8216;f&#8217;, &#8216;d&#8217;</em>) &#8211; float data type in array.array</li>
+<li><strong>delete_report</strong> (<em>boolean</em>) &#8211; if True, report will be deleted, if false, it will remain.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><tt class="docutils literal"><span class="pre">FieldOutput</span></tt> instance.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">odbAccess</span> <span class="kn">import</span> <span class="n">openOdb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">GetFieldOutput_byRpt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb_name</span> <span class="o">=</span> <span class="s">&#39;indentation.odb&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb</span> <span class="o">=</span> <span class="n">openOdb</span><span class="p">(</span><span class="n">odb_name</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S11</span> <span class="o">=</span> <span class="n">GetFieldOutput_byRpt</span><span class="p">(</span>
+<span class="gp">... </span>  <span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">step</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_field</span> <span class="o">=</span> <span class="mi">11</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_set</span> <span class="o">=</span> <span class="s">&#39;CORE&#39;</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="id7">
+<h4>Vector fields<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt id="abapy.postproc.GetVectorFieldOutput">
+<tt class="descclassname">abapy.postproc.</tt><tt class="descname">GetVectorFieldOutput</tt><big>(</big><em>odb</em>, <em>step</em>, <em>frame</em>, <em>instance</em>, <em>position</em>, <em>field</em>, <em>labels=None</em>, <em>dti='I'</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#GetVectorFieldOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.GetVectorFieldOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a VectorFieldOutput from an odb object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>odb</strong> (<em>odb object.</em>) &#8211; odb object produced by odbAccess.openOdb in abaqus python or abaqus viewer -noGUI</li>
+<li><strong>step</strong> (<em>string</em>) &#8211; step name defined in the abaqus inp file. May be the upper case version of original string name.</li>
+<li><strong>frame</strong> (<em>int</em>) &#8211; requested frame indice in the odb.</li>
+<li><strong>instance</strong> (<em>string</em>) &#8211; instance name defined in the abaqus odb file. May be the upper case version of the original name.</li>
+<li><strong>position</strong> (<em>&#8216;node&#8217;, &#8216;element&#8217;</em>) &#8211; position at which the output is to be computed.</li>
+<li><strong>field</strong> (<em>string</em>) &#8211; requested vector field output (&#8216;U&#8217;,...).</li>
+<li><strong>labels</strong> (<em>list, array.array, numpy.array of unsigned non zero ints or string</em>) &#8211; if not None, it provides a set of locations (elements/nodes labels or node/element set label) where the field is to be computed. if None, every available location is used and labels are sorted</li>
+<li><strong>dti</strong> (<em>&#8216;I&#8217;, &#8216;H&#8217;</em>) &#8211; int data type in <tt class="docutils literal"><span class="pre">array.array</span></tt></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><tt class="docutils literal"><span class="pre">VectorFieldOutput</span></tt> instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This function can only be executed in abaqus python or abaqus viewer -noGUI</p>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">GetFieldOutput</span><span class="p">,</span> <span class="n">GetVectorFieldOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">odbAccess</span> <span class="kn">import</span> <span class="n">openOdb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb</span> <span class="o">=</span> <span class="n">openOdb</span><span class="p">(</span><span class="s">&#39;indentation.odb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">U</span> <span class="o">=</span> <span class="n">GetVectorFieldOutput</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="s">&#39;LOADING&#39;</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">instance</span> <span class="o">=</span><span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> <span class="n">position</span> <span class="o">=</span>  <span class="s">&#39;node&#39;</span><span class="p">,</span> <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;U&#39;</span><span class="p">)</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="abapy.postproc.GetVectorFieldOutput_byRpt">
+<tt class="descclassname">abapy.postproc.</tt><tt class="descname">GetVectorFieldOutput_byRpt</tt><big>(</big><em>odb</em>, <em>instance</em>, <em>step</em>, <em>frame</em>, <em>original_position</em>, <em>new_position</em>, <em>position</em>, <em>field</em>, <em>sub_set_type=None</em>, <em>sub_set=None</em>, <em>report_name='dummy.rpt'</em>, <em>dti='I'</em>, <em>dtf='f'</em>, <em>delete_report=True</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#GetVectorFieldOutput_byRpt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.GetVectorFieldOutput_byRpt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses <tt class="docutils literal"><span class="pre">GetFieldOutput_byRpt</span></tt> to produce VectorFieldOutput.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>odb</strong> (odb instance produced by <tt class="docutils literal"><span class="pre">odbAccess.openOdb</span></tt>) &#8211; output database to be used.</li>
+<li><strong>instance</strong> (<em>string</em>) &#8211; instance to use.</li>
+<li><strong>step</strong> (<em>string or int</em>) &#8211; step to use, this argument can be either the step number or the step label.</li>
+<li><strong>frame</strong> (<em>int</em>) &#8211; frame number, can be negative for reverse counting.</li>
+<li><strong>original_position</strong> &#8211; position at which the field is expressed. Can be &#8216;NODAL&#8217;, &#8216;WHOLE_ELEMENT&#8217; or &#8216;INTEGRATION_POINT&#8217;.</li>
+<li><strong>new_position</strong> (<em>string</em>) &#8211; position at which you would like the field to be expressed. Can be &#8216;NODAL&#8217;, &#8216;WHOLE_ELEMENT&#8217; or &#8216;INTEGRATION_POINT&#8217; or &#8216;ELEMENT_NODAL&#8217;. Note that <tt class="docutils literal"><span class="pre">ReadFieldOutputReport</span></tt> will be capable of averaging values over elements when &#8216;INTEGRATION_POINT&#8217; or &#8216;ELEMENT_NODAL&#8217; option is sellected.</li>
+<li><strong>position</strong> (<em>&#8216;node&#8217; or &#8216;element&#8217;</em>) &#8211; position where the <tt class="docutils literal"><span class="pre">FieldOutput</span></tt> is to be declared. The function will look at the first and the last column of the report. The first will be considered as the label (<em>i. e.</em> element or node) and the last the value. In some case, like reports written using &#8216;ELEMENT_NODAL&#8217; or &#8216;INTEGRATION_POINT&#8217; locations, each label will appear several times. The present function will collect all the corresponding values and average them. At the end, the only possibilities for this parameter should be &#8216;node&#8217; or &#8216;element&#8217; as described in the doc of <tt class="docutils literal"><span class="pre">FieldOutput</span></tt>.</li>
+<li><strong>field</strong> (<em>string</em>) &#8211; field to export, example: &#8216;S&#8217;, &#8216;U&#8217;, &#8216;EVOL&#8217;,...</li>
+<li><strong>sub_set</strong> (<em>string</em>) &#8211; set to which the report is restricted, must be the label of an existing node or element set.</li>
+<li><strong>sub_set_type</strong> (<em>string</em>) &#8211; type of the sub_set, can be node or element.</li>
+<li><strong>report_name</strong> (<em>string</em>) &#8211; name or path+name of the report to written.</li>
+<li><strong>dti</strong> (<em>&#8216;I&#8217;, &#8216;H&#8217;</em>) &#8211; int data type in array.array</li>
+<li><strong>dtf</strong> (<em>&#8216;f&#8217;, &#8216;d&#8217;</em>) &#8211; float data type in array.array</li>
+<li><strong>delete_report</strong> (<em>boolean</em>) &#8211; if True, report will be deleted, if false, it will remain.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><tt class="docutils literal"><span class="pre">VectorFieldOutput</span></tt> instance.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">odbAccess</span> <span class="kn">import</span> <span class="n">openOdb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">GetVectorFieldOutput_byRpt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb_name</span> <span class="o">=</span> <span class="s">&#39;indentation.odb&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb</span> <span class="o">=</span> <span class="n">openOdb</span><span class="p">(</span><span class="n">odb_name</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">U</span> <span class="o">=</span> <span class="n">GetVectorFieldOutput_byRpt</span><span class="p">(</span>
+<span class="gp">... </span>  <span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">step</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;U&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_set</span> <span class="o">=</span> <span class="s">&#39;CORE&#39;</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="id8">
+<h4>Tensor fields<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<dl class="function">
+<dt id="abapy.postproc.GetTensorFieldOutput">
+<tt class="descclassname">abapy.postproc.</tt><tt class="descname">GetTensorFieldOutput</tt><big>(</big><em>odb</em>, <em>step</em>, <em>frame</em>, <em>instance</em>, <em>position</em>, <em>field</em>, <em>labels=None</em>, <em>dti='I'</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#GetTensorFieldOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.GetTensorFieldOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a TensorFieldOutput from an odb object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>odb</strong> (<em>odb object.</em>) &#8211; odb object produced by odbAccess.openOdb in abaqus python or abaqus viewer -noGUI</li>
+<li><strong>step</strong> (<em>string</em>) &#8211; step name defined in the abaqus inp file. May be the upper case version of original string name.</li>
+<li><strong>frame</strong> (<em>int</em>) &#8211; requested frame indice in the odb.</li>
+<li><strong>instance</strong> (<em>string</em>) &#8211; instance name defined in the abaqus odb file. May be the upper case version of the original name.</li>
+<li><strong>position</strong> (<em>&#8216;node&#8217;, &#8216;element&#8217;</em>) &#8211; position at which the output is to be computed.</li>
+<li><strong>field</strong> (<em>string</em>) &#8211; requested tensor field output (&#8216;LE&#8217;,&#8217;S&#8217;,...).</li>
+<li><strong>labels</strong> (<em>list, array.array, numpy.array of unsigned non zero ints or string</em>) &#8211; if not None, it provides a set of locations (elements/nodes labels or node/element set label) where the field is to be computed. if None, every available location is used and labels are sorted</li>
+<li><strong>dti</strong> (<em>&#8216;I&#8217;, &#8216;H&#8217;</em>) &#8211; int data type in <tt class="docutils literal"><span class="pre">array.array</span></tt></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><tt class="docutils literal"><span class="pre">TensorFieldOutput</span></tt> instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This function can only be executed in abaqus python or abaqus viewer -noGUI</p>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">GetFieldOutput</span><span class="p">,</span> <span class="n">GetVectorFieldOutput</span><span class="p">,</span> <span class="n">GetTensorFieldOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">odbAccess</span> <span class="kn">import</span> <span class="n">openOdb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb</span> <span class="o">=</span> <span class="n">openOdb</span><span class="p">(</span><span class="s">&#39;indentation.odb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span> <span class="o">=</span> <span class="n">GetTensorFieldOutput</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span> <span class="n">step</span> <span class="o">=</span> <span class="s">&#39;LOADING&#39;</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">instance</span> <span class="o">=</span><span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> <span class="n">position</span> <span class="o">=</span>  <span class="s">&#39;node&#39;</span><span class="p">,</span> <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;S&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="abapy.postproc.GetTensorFieldOutput_byRpt">
+<tt class="descclassname">abapy.postproc.</tt><tt class="descname">GetTensorFieldOutput_byRpt</tt><big>(</big><em>odb</em>, <em>instance</em>, <em>step</em>, <em>frame</em>, <em>original_position</em>, <em>new_position</em>, <em>position</em>, <em>field</em>, <em>sub_set_type=None</em>, <em>sub_set=None</em>, <em>report_name='dummy.rpt'</em>, <em>dti='I'</em>, <em>dtf='f'</em>, <em>delete_report=True</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#GetTensorFieldOutput_byRpt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.GetTensorFieldOutput_byRpt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses <tt class="docutils literal"><span class="pre">GetFieldOutput_byRpt</span></tt> to produce TensorFieldOutput.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>odb</strong> (odb instance produced by <tt class="docutils literal"><span class="pre">odbAccess.openOdb</span></tt>) &#8211; output database to be used.</li>
+<li><strong>instance</strong> (<em>string</em>) &#8211; instance to use.</li>
+<li><strong>step</strong> (<em>string or int</em>) &#8211; step to use, this argument can be either the step number or the step label.</li>
+<li><strong>frame</strong> (<em>int</em>) &#8211; frame number, can be negative for reverse counting.</li>
+<li><strong>original_position</strong> &#8211; position at which the field is expressed. Can be &#8216;NODAL&#8217;, &#8216;WHOLE_ELEMENT&#8217; or &#8216;INTEGRATION_POINT&#8217;.</li>
+<li><strong>new_position</strong> (<em>string</em>) &#8211; position at which you would like the field to be expressed. Can be &#8216;NODAL&#8217;, &#8216;WHOLE_ELEMENT&#8217; or &#8216;INTEGRATION_POINT&#8217; or &#8216;ELEMENT_NODAL&#8217;. Note that <tt class="docutils literal"><span class="pre">ReadFieldOutputReport</span></tt> will be capable of averaging values over elements when &#8216;INTEGRATION_POINT&#8217; or &#8216;ELEMENT_NODAL&#8217; option is sellected.</li>
+<li><strong>position</strong> (<em>&#8216;node&#8217; or &#8216;element&#8217;</em>) &#8211; position where the <tt class="docutils literal"><span class="pre">FieldOutput</span></tt> is to be declared. The function will look at the first and the last column of the report. The first will be considered as the label (<em>i. e.</em> element or node) and the last the value. In some case, like reports written using &#8216;ELEMENT_NODAL&#8217; or &#8216;INTEGRATION_POINT&#8217; locations, each label will appear several times. The present function will collect all the corresponding values and average them. At the end, the only possibilities for this parameter should be &#8216;node&#8217; or &#8216;element&#8217; as described in the doc of <tt class="docutils literal"><span class="pre">FieldOutput</span></tt>.</li>
+<li><strong>field</strong> (<em>string</em>) &#8211; field to export, example: &#8216;S&#8217;, &#8216;U&#8217;, &#8216;EVOL&#8217;,...</li>
+<li><strong>sub_set</strong> (<em>string</em>) &#8211; set to which the report is restricted, must be the label of an existing node or element set.</li>
+<li><strong>sub_set_type</strong> (<em>string</em>) &#8211; type of the sub_set, can be node or element.</li>
+<li><strong>report_name</strong> (<em>string</em>) &#8211; name or path+name of the report to written.</li>
+<li><strong>dti</strong> (<em>&#8216;I&#8217;, &#8216;H&#8217;</em>) &#8211; int data type in array.array</li>
+<li><strong>dtf</strong> (<em>&#8216;f&#8217;, &#8216;d&#8217;</em>) &#8211; float data type in array.array</li>
+<li><strong>delete_report</strong> (<em>boolean</em>) &#8211; if True, report will be deleted, if false, it will remain.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><tt class="docutils literal"><span class="pre">TensorFieldOutput</span></tt> instance.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">odbAccess</span> <span class="kn">import</span> <span class="n">openOdb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">GetTensorFieldOutput_byRpt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb_name</span> <span class="o">=</span> <span class="s">&#39;indentation.odb&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb</span> <span class="o">=</span> <span class="n">openOdb</span><span class="p">(</span><span class="n">odb_name</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">S</span> <span class="o">=</span> <span class="n">GetTensorFieldOutput_byRpt</span><span class="p">(</span>
+<span class="gp">... </span>  <span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">step</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+<span class="gp">... </span>  <span class="n">sub_set</span> <span class="o">=</span> <span class="s">&#39;CORE&#39;</span><span class="p">,</span>
+<span class="gp">... </span>  <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="zerofieldoutput-like">
+<h3><tt class="docutils literal"><span class="pre">ZeroFieldOutput_like</span></tt><a class="headerlink" href="#zerofieldoutput-like" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="abapy.postproc.ZeroFieldOutput_like">
+<tt class="descclassname">abapy.postproc.</tt><tt class="descname">ZeroFieldOutput_like</tt><big>(</big><em>fo</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#ZeroFieldOutput_like"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.ZeroFieldOutput_like" title="Permalink to this definition">¶</a></dt>
+<dd><p>A FieldOutput containing only zeros but with the same position, labels and dtypes as the input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fo</strong> (<em>FieldOutput instance</em>) &#8211; field output to be used.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">FieldOutput instance</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">uses Numpy.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="onefieldoutput-like">
+<h3><tt class="docutils literal"><span class="pre">OneFieldOutput_like</span></tt><a class="headerlink" href="#onefieldoutput-like" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="abapy.postproc.OneFieldOutput_like">
+<tt class="descclassname">abapy.postproc.</tt><tt class="descname">OneFieldOutput_like</tt><big>(</big><em>fo</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#OneFieldOutput_like"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.OneFieldOutput_like" title="Permalink to this definition">¶</a></dt>
+<dd><p>A FieldOutput containing only ones but with the same position, labels and dtypes as the input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fo</strong> (<em>FieldOutput instance</em>) &#8211; field output to be used.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">FieldOutput instance</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">uses Numpy.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="identity-like">
+<h3><tt class="docutils literal"><span class="pre">Identity_like</span></tt><a class="headerlink" href="#identity-like" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="abapy.postproc.Identity_like">
+<tt class="descclassname">abapy.postproc.</tt><tt class="descname">Identity_like</tt><big>(</big><em>fo</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#Identity_like"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.Identity_like" title="Permalink to this definition">¶</a></dt>
+<dd><p>A TensorFieldOutput containing only identity but with the same position, labels and dtypes as the input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>fo</strong> (<em>TensorFieldOutput instance</em>) &#8211; tensor field output to be used.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">TensorFieldOutput instance</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">FieldOutput</span><span class="p">,</span> <span class="n">TensorFieldOutput</span><span class="p">,</span> <span class="n">Identity_like</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data2</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data1</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">data1</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fo1</span><span class="p">,</span> <span class="n">fo2</span> <span class="o">=</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data1</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="s">&#39;node&#39;</span> <span class="p">),</span> <span class="n">FieldOutput</span><span class="p">(</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data2</span><span class="p">,</span><span class="n">position</span><span class="o">=</span><span class="s">&#39;node&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tensor</span> <span class="o">=</span> <span class="n">TensorFieldOutput</span><span class="p">(</span><span class="n">data11</span> <span class="o">=</span> <span class="n">fo1</span><span class="p">,</span> <span class="n">data22</span> <span class="o">=</span> <span class="n">fo2</span> <span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">identity</span> <span class="o">=</span> <span class="n">Identity_like</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">identity</span>
+<span class="go">TensorFieldOutput instance</span>
+<span class="go">Position = node</span>
+<span class="go">Label Data11  Data22  Data33  Data12  Data13  Data23</span>
+<span class="go">1     1.0e+00 1.0e+00 1.0e+00 0.0e+00 0.0e+00 0.0e+00</span>
+<span class="go">2     1.0e+00 1.0e+00 1.0e+00 0.0e+00 0.0e+00 0.0e+00</span>
+<span class="go">3     1.0e+00 1.0e+00 1.0e+00 0.0e+00 0.0e+00 0.0e+00</span>
+<span class="go">4     1.0e+00 1.0e+00 1.0e+00 0.0e+00 0.0e+00 0.0e+00</span>
+<span class="go">5     1.0e+00 1.0e+00 1.0e+00 0.0e+00 0.0e+00 0.0e+00</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="history-outputs">
+<h2>History Outputs<a class="headerlink" href="#history-outputs" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="historyoutput-class">
+<h3><tt class="docutils literal"><span class="pre">HistoryOutput</span></tt> class<a class="headerlink" href="#historyoutput-class" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="abapy.postproc.HistoryOutput">
+<em class="property">class </em><tt class="descclassname">abapy.postproc.</tt><tt class="descname">HistoryOutput</tt><big>(</big><em>time=</em><span class="optional">[</span><span class="optional">]</span>, <em>data=</em><span class="optional">[</span><span class="optional">]</span>, <em>dtf='f'</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#HistoryOutput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.HistoryOutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores history output data from and allows useful operations. The key idea of this class is to allow easy storage of time dependant data without merging steps to allow further separating of each test steps (loading, unloading,...). The class allows additions, multiplication, ... between class instances and between class instances and int/floats. These operations only affect y data as long as time has no reason to be affected.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>time</strong> (<em>list of list/array.array containing floats</em>) &#8211; time represented by nested lists, each one corresponding to a step.</li>
+<li><strong>data</strong> (<em>list of list/array.array containing floats</em>) &#8211; data (ex: displacement, force, energy ...).  It is represented by nested lists, each one corresponding to a step.</li>
+<li><strong>dtf</strong> (<em>&#8216;f&#8217;, &#8216;d&#8217;</em>) &#8211; float data type used by array.array</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">HistoryOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span><span class="mf">3.</span><span class="p">]</span> <span class="p">,</span> <span class="p">[</span><span class="mf">3.</span><span class="p">,</span><span class="mf">4.</span><span class="p">,</span><span class="mf">5.</span><span class="p">]</span> <span class="p">,</span> <span class="p">[</span><span class="mf">5.</span><span class="p">,</span><span class="mf">6.</span><span class="p">,</span><span class="mf">7.</span><span class="p">]</span> <span class="p">]</span> <span class="c"># Time separated in 3 steps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mf">2.</span><span class="p">,</span><span class="mf">2.</span><span class="p">,</span><span class="mf">2.</span><span class="p">]</span> <span class="p">,</span> <span class="p">[</span><span class="mf">3.</span><span class="p">,</span><span class="mf">3.</span><span class="p">,</span><span class="mf">3.</span><span class="p">]</span> <span class="p">,</span> <span class="p">[</span><span class="mf">4.</span><span class="p">,</span><span class="mf">4.</span><span class="p">,</span><span class="mf">4.</span><span class="p">]</span> <span class="p">]</span> <span class="c"># Data separated in 3 steps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Data</span> <span class="o">=</span> <span class="n">HistoryOutput</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">Data</span> 
+<span class="go">Field output instance: 3 steps</span>
+<span class="go">Step 0: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">1.0   2.0</span>
+<span class="go">2.0   2.0</span>
+<span class="go">3.0   2.0</span>
+<span class="go">Step 1: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">3.0   3.0</span>
+<span class="go">4.0   3.0</span>
+<span class="go">5.0   3.0</span>
+<span class="go">Step 2: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">5.0   4.0</span>
+<span class="go">6.0   4.0</span>
+<span class="go">7.0   4.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c"># +, *, **, abs, neg act only on data, not on time</span>
+<span class="gp">... </span><span class="k">print</span> <span class="n">Data</span> <span class="o">+</span> <span class="n">Data</span> <span class="o">+</span> <span class="mf">1.</span> <span class="c"># addition</span>
+<span class="go">Field output instance: 3 steps</span>
+<span class="go">Step 0: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">1.0   5.0</span>
+<span class="go">2.0   5.0</span>
+<span class="go">3.0   5.0</span>
+<span class="go">Step 1: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">3.0   7.0</span>
+<span class="go">4.0   7.0</span>
+<span class="go">5.0   7.0</span>
+<span class="go">Step 2: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">5.0   9.0</span>
+<span class="go">6.0   9.0</span>
+<span class="go">7.0   9.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">Data</span> <span class="o">*</span> <span class="n">Data</span> <span class="o">*</span> <span class="mf">2.</span> <span class="c"># multiplication</span>
+<span class="go">Field output instance: 3 steps</span>
+<span class="go">Step 0: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">1.0   8.0</span>
+<span class="go">2.0   8.0</span>
+<span class="go">3.0   8.0</span>
+<span class="go">Step 1: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">3.0   18.0</span>
+<span class="go">4.0   18.0</span>
+<span class="go">5.0   18.0</span>
+<span class="go">Step 2: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">5.0   32.0</span>
+<span class="go">6.0   32.0</span>
+<span class="go">7.0   32.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="p">(</span> <span class="n">Data</span> <span class="o">/</span> <span class="n">Data</span> <span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span> <span class="c"># division</span>
+<span class="go">Field output instance: 3 steps</span>
+<span class="go">Step 0: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">1.0   0.5</span>
+<span class="go">2.0   0.5</span>
+<span class="go">3.0   0.5</span>
+<span class="go">Step 1: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">3.0   0.5</span>
+<span class="go">4.0   0.5</span>
+<span class="go">5.0   0.5</span>
+<span class="go">Step 2: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">5.0   0.5</span>
+<span class="go">6.0   0.5</span>
+<span class="go">7.0   0.5</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">Data</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="go">Field output instance: 3 steps</span>
+<span class="go">Step 0: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">1.0   4.0</span>
+<span class="go">2.0   4.0</span>
+<span class="go">3.0   4.0</span>
+<span class="go">Step 1: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">3.0   9.0</span>
+<span class="go">4.0   9.0</span>
+<span class="go">5.0   9.0</span>
+<span class="go">Step 2: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">5.0   16.0</span>
+<span class="go">6.0   16.0</span>
+<span class="go">7.0   16.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="nb">abs</span><span class="p">(</span><span class="n">Data</span><span class="p">)</span>
+<span class="go">Field output instance: 3 steps</span>
+<span class="go">Step 0: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">1.0   2.0</span>
+<span class="go">2.0   2.0</span>
+<span class="go">3.0   2.0</span>
+<span class="go">Step 1: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">3.0   3.0</span>
+<span class="go">4.0   3.0</span>
+<span class="go">5.0   3.0</span>
+<span class="go">Step 2: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">5.0   4.0</span>
+<span class="go">6.0   4.0</span>
+<span class="go">7.0   4.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">Data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c"># step 1</span>
+<span class="go">Field output instance: 1 steps</span>
+<span class="go">Step 0: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">3.0   3.0</span>
+<span class="go">4.0   3.0</span>
+<span class="go">5.0   3.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">Data</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+<span class="go">Field output instance: 2 steps</span>
+<span class="go">Step 0: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">1.0   2.0</span>
+<span class="go">2.0   2.0</span>
+<span class="go">3.0   2.0</span>
+<span class="go">Step 1: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">3.0   3.0</span>
+<span class="go">4.0   3.0</span>
+<span class="go">5.0   3.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">Data</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="go">Field output instance: 2 steps</span>
+<span class="go">Step 0: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">1.0   2.0</span>
+<span class="go">2.0   2.0</span>
+<span class="go">3.0   2.0</span>
+<span class="go">Step 1: 3 points</span>
+<span class="go">Time  Data</span>
+<span class="go">5.0   4.0</span>
+<span class="go">6.0   4.0</span>
+<span class="go">7.0   4.0</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="section" id="add-get-data">
+<h4>Add/get data<a class="headerlink" href="#add-get-data" title="Permalink to this headline">¶</a></h4>
+<dl class="method">
+<dt id="abapy.postproc.HistoryOutput.add_step">
+<tt class="descclassname">HistoryOutput.</tt><tt class="descname">add_step</tt><big>(</big><em>time_step</em>, <em>data_step</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#HistoryOutput.add_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.HistoryOutput.add_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds data to an HistoryOutput instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>time_step</strong> (<em>list, array.array, np.array containing floats</em>) &#8211; time data to be added.</li>
+<li><strong>data_step</strong> (<em>list, array.array, np.array containing floats</em>) &#8211; data to be added.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">HistoryOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span> <span class="p">,</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.</span><span class="p">]</span> <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">force</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mf">4.</span><span class="p">,</span><span class="mf">2.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span> <span class="p">,</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="o">.</span><span class="mi">2</span><span class="p">]</span> <span class="p">]</span> <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Force</span> <span class="o">=</span> <span class="n">HistoryOutput</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">force</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Force</span><span class="o">.</span><span class="n">time</span> <span class="c"># time</span>
+<span class="go">[array(&#39;f&#39;, [0.0, 0.5, 1.0]), array(&#39;f&#39;, [1.0, 1.5, 2.0])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Force</span><span class="o">.</span><span class="n">add_step</span><span class="p">([</span><span class="mf">5.</span><span class="p">,</span><span class="mf">5.</span><span class="p">,</span><span class="mf">5.</span><span class="p">],[</span><span class="mf">4.</span><span class="p">,</span><span class="mf">4.</span><span class="p">,</span><span class="mf">4.</span><span class="p">])</span> 
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Force</span><span class="o">.</span><span class="n">time</span>
+<span class="go">[array(&#39;f&#39;, [0.0, 0.5, 1.0]), array(&#39;f&#39;, [1.0, 1.5, 2.0]), array(&#39;f&#39;, [5.0, 5.0, 5.0])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Force</span><span class="o">.</span><span class="n">data</span>
+<span class="go">[array(&#39;f&#39;, [4.0, 2.0, 1.0]), array(&#39;f&#39;, [1.0, 0.5, 0.20000000298023224]), array(&#39;f&#39;, [4.0, 4.0, 4.0])]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.HistoryOutput.plotable">
+<tt class="descclassname">HistoryOutput.</tt><tt class="descname">plotable</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#HistoryOutput.plotable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.HistoryOutput.plotable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives back plotable version of the history output. Plotable differs from toArray on one point, toArray will concatenate steps into one single array for x and one for y where plotable will add None between steps before concatenation. Adding None allows matplotlib to draw discontinuous lines between steps without requiring ploting several independant arrays. By the way, the None methode is far faster.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">2 lists of floats and None</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">HistoryOutput</span>
+<span class="n">time</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span><span class="mf">3.</span><span class="p">]</span> <span class="p">,</span> <span class="p">[</span><span class="mf">3.</span><span class="p">,</span><span class="mf">4.</span><span class="p">,</span><span class="mf">5.</span><span class="p">]</span> <span class="p">,</span> <span class="p">[</span><span class="mf">5.</span><span class="p">,</span><span class="mf">6.</span><span class="p">,</span><span class="mf">7.</span><span class="p">]</span> <span class="p">]</span>
+<span class="n">force</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mf">2.</span><span class="p">,</span><span class="mf">2.</span><span class="p">,</span><span class="mf">2.</span><span class="p">]</span> <span class="p">,</span> <span class="p">[</span><span class="mf">3.</span><span class="p">,</span><span class="mf">3.</span><span class="p">,</span><span class="mf">3.</span><span class="p">]</span> <span class="p">,</span> <span class="p">[</span><span class="mf">4.</span><span class="p">,</span><span class="mf">4.</span><span class="p">,</span><span class="mf">4.</span><span class="p">]</span> <span class="p">]</span>
+<span class="n">Force</span> <span class="o">=</span> <span class="n">HistoryOutput</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">force</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+<span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">Force</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span>
+<span class="n">x2</span><span class="p">,</span><span class="n">y2</span> <span class="o">=</span> <span class="n">Force</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">plotable</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span><span class="n">y2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&#39;HistoryOutput-plotable.png&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&#39;HistorytOutput.toArray&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&#39;HistorytOutput.plotable&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href="./example_code/postproc/historyOutput-plotable.py">Source code</a>, <a class="reference external" href="./example_code/postproc/historyOutput-plotable.png">png</a>, <a class="reference external" href="./example_code/postproc/historyOutput-plotable.hires.png">hires.png</a>, <a class="reference external" href="./example_code/postproc/historyOutput-plotable.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/historyOutput-plotable.png" src="_images/historyOutput-plotable.png" />
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.HistoryOutput.toArray">
+<tt class="descclassname">HistoryOutput.</tt><tt class="descname">toArray</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#HistoryOutput.toArray"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.HistoryOutput.toArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an array.array of concatenated steps for x and y.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">array.array</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">HistoryOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">2.</span><span class="p">,</span><span class="mf">3.</span><span class="p">]</span> <span class="p">,</span> <span class="p">[</span><span class="mf">3.</span><span class="p">,</span><span class="mf">4.</span><span class="p">,</span><span class="mf">5.</span><span class="p">]</span> <span class="p">,</span> <span class="p">[</span><span class="mf">5.</span><span class="p">,</span><span class="mf">6.</span><span class="p">,</span><span class="mf">7.</span><span class="p">]</span> <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">force</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mf">2.</span><span class="p">,</span><span class="mf">2.</span><span class="p">,</span><span class="mf">2.</span><span class="p">]</span> <span class="p">,</span> <span class="p">[</span><span class="mf">3.</span><span class="p">,</span><span class="mf">3.</span><span class="p">,</span><span class="mf">3.</span><span class="p">]</span> <span class="p">,</span> <span class="p">[</span><span class="mf">4.</span><span class="p">,</span><span class="mf">4.</span><span class="p">,</span><span class="mf">4.</span><span class="p">]</span> <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Force</span> <span class="o">=</span> <span class="n">HistoryOutput</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">force</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">Force</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span>
+<span class="go">array(&#39;f&#39;, [1.0, 2.0, 3.0, 3.0, 4.0, 5.0, 5.0, 6.0, 7.0])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span>
+<span class="go">array(&#39;f&#39;, [2.0, 2.0, 2.0, 3.0, 3.0, 3.0, 4.0, 4.0, 4.0])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="utilities">
+<h4>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h4>
+<dl class="method">
+<dt id="abapy.postproc.HistoryOutput.total">
+<tt class="descclassname">HistoryOutput.</tt><tt class="descname">total</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#HistoryOutput.total"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.HistoryOutput.total" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the total of all data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.HistoryOutput.integral">
+<tt class="descclassname">HistoryOutput.</tt><tt class="descname">integral</tt><big>(</big><em>method='trapz'</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#HistoryOutput.integral"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.HistoryOutput.integral" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the integral of the history output using the trapezoid or Simpson rule.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>method</strong> (<em>string</em>) &#8211; choice between trapezoid rule (&#8216;trapz&#8217;) or Simpson rule (&#8216;simps&#8217;).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">HistoryOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">],</span> <span class="p">[</span><span class="mf">3.</span><span class="p">,</span> <span class="mf">4.</span><span class="p">]</span> <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span> <span class="p">[</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">],</span> <span class="p">[</span><span class="o">.</span><span class="mi">5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">]</span> <span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span> <span class="o">=</span> <span class="n">HistoryOutput</span><span class="p">(</span><span class="n">time</span> <span class="o">=</span> <span class="n">time</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">integral</span><span class="p">()</span>
+<span class="go">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">integral</span><span class="p">()</span>
+<span class="go">1.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="o">.</span><span class="n">integral</span><span class="p">()</span>
+<span class="go">2.0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sin</span><span class="p">,</span> <span class="n">pi</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span> <span class="o">=</span> <span class="p">[</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="n">N</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span> <span class="o">=</span> <span class="n">HistoryOutput</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">time_step</span> <span class="o">=</span> <span class="n">time</span><span class="p">,</span> <span class="n">data_step</span> <span class="o">=</span> <span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trap</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">integral</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simp</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">integral</span><span class="p">(</span><span class="n">method</span> <span class="o">=</span> <span class="s">&#39;simps&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">trap_error</span> <span class="o">=</span> <span class="p">(</span><span class="n">trap</span> <span class="o">-</span><span class="mf">1.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">simp_error</span> <span class="o">=</span> <span class="p">(</span><span class="n">simp</span> <span class="o">-</span><span class="mf">1.</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt>Relative errors:</dt>
+<dd><ul class="first last simple">
+<li>Trapezoid rule: -0.21%</li>
+<li>Simpson rule: 0.00033%</li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">uses <tt class="docutils literal"><span class="pre">scipy</span></tt></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.HistoryOutput.average">
+<tt class="descclassname">HistoryOutput.</tt><tt class="descname">average</tt><big>(</big><em>method='trapz'</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#HistoryOutput.average"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.HistoryOutput.average" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the average of all data over time using <tt class="docutils literal"><span class="pre">integral</span></tt>. This average is performed step by step to avoid errors due to disconnected steps.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>method</strong> (<em>string</em>) &#8211; choice between trapezoid rule (&#8216;trapz&#8217;) or Simpson rule (&#8216;simps&#8217;).</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">HistoryOutput</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">sin</span><span class="p">,</span> <span class="n">pi</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">N</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span> <span class="o">=</span> <span class="n">HistoryOutput</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time</span> <span class="o">=</span> <span class="p">[</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">/</span><span class="n">N</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="n">N</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">time_step</span> <span class="o">=</span> <span class="n">time</span><span class="p">,</span> <span class="n">data_step</span> <span class="o">=</span> <span class="n">data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">time2</span> <span class="o">=</span> <span class="p">[</span><span class="mf">10.</span><span class="p">,</span> <span class="mf">11.</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data2</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hist</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">time_step</span> <span class="o">=</span> <span class="n">time2</span><span class="p">,</span> <span class="n">data_step</span> <span class="o">=</span> <span class="n">data2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sol</span> <span class="o">=</span> <span class="mf">2.</span> <span class="o">/</span> <span class="n">pi</span> <span class="o">+</span> <span class="mf">1.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&#39;Print computed value:&#39;</span><span class="p">,</span> <span class="n">hist</span><span class="o">.</span><span class="n">average</span><span class="p">()</span>
+<span class="go">Print computed value: 1.63660673935</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&#39;Analytic solution:&#39;</span><span class="p">,</span> <span class="n">sol</span>
+<span class="go">Analytic solution: 1.63661977237</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&#39;Relative error: {0:.4}%&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span> <span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">average</span><span class="p">()</span> <span class="o">-</span> <span class="n">sol</span><span class="p">)</span><span class="o">/</span><span class="n">sol</span> <span class="o">*</span> <span class="mf">100.</span><span class="p">)</span>
+<span class="go">Relative error: -0.0007963%</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.HistoryOutput.data_min">
+<tt class="descclassname">HistoryOutput.</tt><tt class="descname">data_min</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#HistoryOutput.data_min"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.HistoryOutput.data_min" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the minimum value of data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.HistoryOutput.data_max">
+<tt class="descclassname">HistoryOutput.</tt><tt class="descname">data_max</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#HistoryOutput.data_max"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.HistoryOutput.data_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the maximum value of data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.HistoryOutput.time_min">
+<tt class="descclassname">HistoryOutput.</tt><tt class="descname">time_min</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#HistoryOutput.time_min"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.HistoryOutput.time_min" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the minimum value of time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.HistoryOutput.time_max">
+<tt class="descclassname">HistoryOutput.</tt><tt class="descname">time_max</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#HistoryOutput.time_max"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.HistoryOutput.time_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the maximum value of time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="abapy.postproc.HistoryOutput.duration">
+<tt class="descclassname">HistoryOutput.</tt><tt class="descname">duration</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#HistoryOutput.duration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.HistoryOutput.duration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the duration of the output by computing max(time) - min(time).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="gethistoryoutputbykey-function">
+<h3><tt class="docutils literal"><span class="pre">GetHistoryOutputByKey</span></tt> function<a class="headerlink" href="#gethistoryoutputbykey-function" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="abapy.postproc.GetHistoryOutputByKey">
+<tt class="descclassname">abapy.postproc.</tt><tt class="descname">GetHistoryOutputByKey</tt><big>(</big><em>odb</em>, <em>key</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#GetHistoryOutputByKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.GetHistoryOutputByKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves an history output in an odb object using key (U2, EVOL, RF2,...)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>odb</strong> (<em>odb object</em>) &#8211; Abaqus output database object produced by odbAcces.openOdb.</li>
+<li><strong>key</strong> (<em>string</em>) &#8211; name of the requested variable (<em>i. e.</em> &#8216;U2&#8217;, &#8216;COOR1&#8217;, ...)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict of HistoryOutput instance where keys are HistoryRegions names (<em>i. e.</em> locations)</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">odbAccess</span> <span class="kn">import</span> <span class="n">openOdb</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">odb</span> <span class="o">=</span> <span class="n">openOdb</span><span class="p">(</span><span class="s">&#39;mySimulation.odb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">GetHistoryOutputByKey</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u_2</span> <span class="o">=</span> <span class="n">GetHistoryOutputByKey</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span><span class="s">&#39;U2&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="mesh">
+<h2>Mesh<a class="headerlink" href="#mesh" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="getmesh-function">
+<h3><tt class="docutils literal"><span class="pre">GetMesh</span></tt> function<a class="headerlink" href="#getmesh-function" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="abapy.postproc.GetMesh">
+<tt class="descclassname">abapy.postproc.</tt><tt class="descname">GetMesh</tt><big>(</big><em>odb</em>, <em>instance</em>, <em>dti='I'</em><big>)</big><a class="reference internal" href="_modules/abapy/postproc.html#GetMesh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#abapy.postproc.GetMesh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves mesh on an instance in an Abaqus Output Database.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>odb</strong> (<em>odb object</em>) &#8211; output database</li>
+<li><strong>instance</strong> (<em>string</em>) &#8211; instance name declared in the Abaqus inp file.</li>
+<li><strong>dti</strong> (<em>&#8216;I&#8217; or &#8216;H&#8217;</em>) &#8211; int data type in array.array</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Mesh instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">GetMesh</span>  
+<span class="kn">from</span> <span class="nn">odbAccess</span> <span class="kn">import</span> <span class="n">openOdb</span>
+<span class="n">odb</span> <span class="o">=</span> <span class="n">openOdb</span><span class="p">(</span><span class="s">&#39;myOdb.odb&#39;</span><span class="p">)</span>      
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">GetMesh</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span><span class="s">&#39;MYINSTANCE&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Post Processing</a><ul>
+<li><a class="reference internal" href="#field-outputs">Field Outputs</a><ul>
+<li><a class="reference internal" href="#scalar-fields">Scalar fields</a><ul>
+<li><a class="reference internal" href="#add-remove-get-data">Add/remove/get data</a></li>
+<li><a class="reference internal" href="#vtk-export">VTK Export</a></li>
+<li><a class="reference internal" href="#operations-and-invariants">Operations and invariants</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#vector-fields">Vector fields</a><ul>
+<li><a class="reference internal" href="#id1">Add/remove/get data</a></li>
+<li><a class="reference internal" href="#id2">VTK Export</a></li>
+<li><a class="reference internal" href="#operations">Operations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#tensor-fields">Tensor fields</a><ul>
+<li><a class="reference internal" href="#id3">Add/remove/get data</a></li>
+<li><a class="reference internal" href="#id4">VTK Export</a></li>
+<li><a class="reference internal" href="#id5">Operations and invariants</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#getting-field-outputs-from-an-abaqus-odb">Getting field outputs from an Abaqus ODB</a><ul>
+<li><a class="reference internal" href="#id6">Scalar fields</a></li>
+<li><a class="reference internal" href="#id7">Vector fields</a></li>
+<li><a class="reference internal" href="#id8">Tensor fields</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#zerofieldoutput-like"><tt class="docutils literal"><span class="pre">ZeroFieldOutput_like</span></tt></a></li>
+<li><a class="reference internal" href="#onefieldoutput-like"><tt class="docutils literal"><span class="pre">OneFieldOutput_like</span></tt></a></li>
+<li><a class="reference internal" href="#identity-like"><tt class="docutils literal"><span class="pre">Identity_like</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#history-outputs">History Outputs</a><ul>
+<li><a class="reference internal" href="#historyoutput-class"><tt class="docutils literal"><span class="pre">HistoryOutput</span></tt> class</a><ul>
+<li><a class="reference internal" href="#add-get-data">Add/get data</a></li>
+<li><a class="reference internal" href="#utilities">Utilities</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#gethistoryoutputbykey-function"><tt class="docutils literal"><span class="pre">GetHistoryOutputByKey</span></tt> function</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#mesh">Mesh</a><ul>
+<li><a class="reference internal" href="#getmesh-function"><tt class="docutils literal"><span class="pre">GetMesh</span></tt> function</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="materials.html"
+                        title="previous chapter">Materials</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="indentation.html"
+                        title="next chapter">Indentation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/postproc.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="indentation.html" title="Indentation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="materials.html" title="Materials"
+             >previous</a> |</li>
+        <li><a href="index.html">abapy 2.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Ludovic Charleux.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

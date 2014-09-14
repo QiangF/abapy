@@ -1,0 +1,1328 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Advanced Examples &mdash; abapy 2.3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="abapy 2.3.0 documentation" href="index.html" />
+    <link rel="prev" title="Miscellaneous" href="misc.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="misc.html" title="Miscellaneous"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">abapy 2.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="advanced-examples">
+<h1>Advanced Examples<a class="headerlink" href="#advanced-examples" title="Permalink to this headline">¶</a></h1>
+<p>Here we show some fancier examples using the tools available in abapy all together.</p>
+<div class="section" id="indentation">
+<h2>Indentation<a class="headerlink" href="#indentation" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="d-3d-multi-material-indentation">
+<h3>2D / 3D , multi material indentation<a class="headerlink" href="#d-3d-multi-material-indentation" title="Permalink to this headline">¶</a></h3>
+<p>All files used in this example are available in <tt class="docutils literal"><span class="pre">doc/advanced_examples/indentation/simulations</span></tt></p>
+<p>In this example, we focus on the indentation behavior of an elastic-plastic (von Mises) sample indented by an axisymmetric cone. To build this example, we first need to create 2 classes: <tt class="docutils literal"><span class="pre">Simulation</span></tt> and <tt class="docutils literal"><span class="pre">Database_Manager</span></tt> as follows in the file <a class="reference download internal" href="_downloads/classes.py"><tt class="xref download docutils literal"><span class="pre">classes.py</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># VON MISES CLASSES</span>
+<span class="c"># Parametric indentation tool</span>
+
+<span class="c">#----------------------------------------------------------------------------------------------------------------</span>
+<span class="c"># IMPORTS</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">create_engine</span><span class="p">,</span> <span class="n">Column</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">String</span><span class="p">,</span> <span class="n">Float</span><span class="p">,</span> <span class="n">Boolean</span><span class="p">,</span> <span class="n">PickleType</span><span class="p">,</span> <span class="n">UniqueConstraint</span><span class="p">,</span> <span class="n">desc</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.ext.declarative</span> <span class="kn">import</span> <span class="n">declarative_base</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">sessionmaker</span>
+<span class="c">#----------------------------------------------------------------------------------------------------------------</span>
+
+
+<span class="n">Base</span> <span class="o">=</span> <span class="n">declarative_base</span><span class="p">()</span>
+
+
+
+
+<span class="c">#---------------------------------------------------------------------------------------------------------------- </span>
+<span class="c"># SIMULATION CLASS </span>
+<span class="c"># Declaration of the Simulation class which stores all simulation data so that each simulation is an instance of the Simulation class. This class uses widely SQL Alchemy&#39;s ORM capabilities. To go deeper into this class, please read the (very good) tutorial or SQL Alchemy. If you just want to see the spirit of this class, just see it as a database when each attribute is mirrored as a database entry. The structure of the class itself is surprising because SQL Alchemy allows automatic constructor building so any attribute is automatically available in the constructor (i. e. __init__).</span>
+<span class="k">class</span> <span class="nc">Simulation</span><span class="p">(</span><span class="n">Base</span><span class="p">):</span>
+  <span class="n">__tablename__</span> <span class="o">=</span> <span class="s">&#39;simulations&#39;</span>
+  <span class="nb">id</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+  <span class="c"># Inputs</span>
+  <span class="n">three_dimensional</span>            <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Boolean</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">sweep_angle</span>         <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mf">60.</span><span class="p">)</span>
+  <span class="n">rigid_indenter</span>               <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Boolean</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">indenter_half_angle</span>          <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mf">70.3</span><span class="p">)</span>
+  <span class="n">indenter_pyramid</span>             <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Boolean</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">indenter_mat_type</span>            <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="s">&#39;elastic&#39;</span><span class="p">)</span>
+  <span class="n">indenter_mat_args</span>            <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">,</span> 
+    <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> 
+    <span class="n">default</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;young_modulus&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">,</span> <span class="s">&#39;poisson_ratio&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">})</span>
+  <span class="n">sample_mat_type</span>              <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">String</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="s">&#39;vonmises&#39;</span><span class="p">)</span>
+  <span class="n">sample_mat_args</span>              <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">,</span> 
+    <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> 
+    <span class="n">default</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;young_modulus&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">,</span> <span class="s">&#39;poisson_ratio&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s">&#39;yield_stress&#39;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">})</span>
+  <span class="n">friction</span>                     <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">)</span> 
+  <span class="n">mesh_Na</span>                      <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>  <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">mesh_Nb</span>                      <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>  <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">mesh_Ns</span>                      <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">mesh_Nf</span>                      <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>  <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">mesh_Nsweep</span>                  <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>  <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">indenter_mesh_Na</span>             <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>  <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">indenter_mesh_Nb</span>             <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>  <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">indenter_mesh_Ns</span>             <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>  <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">indenter_mesh_Nf</span>             <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>  <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">indenter_mesh_Nsweep</span>         <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>  <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">mesh_l</span>                       <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">,</span>   <span class="n">default</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">max_disp</span>                     <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">,</span>   <span class="n">default</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">sample_mesh_disp</span>             <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="bp">False</span> <span class="p">)</span>
+  <span class="c"># Internal parameters</span>
+  <span class="n">frames</span>                       <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">completed</span>                    <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Boolean</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="n">priority</span>                     <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Integer</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+  <span class="c"># Preprocess</span>
+  <span class="n">mesh</span>                         <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">indenter</span>                     <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">sample_mat</span>                   <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">indenter_mat</span>                 <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">steps</span>                        <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="c"># Time histories</span>
+  <span class="n">force_hist</span>                   <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">disp_hist</span>                    <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">tip_penetration_hist</span>         <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">elastic_work_hist</span>            <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">plastic_work_hist</span>            <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">friction_work_hist</span>           <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">total_work_hist</span>              <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="c"># Contact data</span>
+  <span class="n">contact_data</span>                 <span class="o">=</span>  <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="c"># Fields</span>
+  <span class="n">stress_field</span>                 <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">disp_field</span>                   <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">total_strain_field</span>           <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">plastic_strain_field</span>         <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">elastic_strain_field</span>         <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">equivalent_plastic_strain_field</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">disp_field</span>                   <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="n">ind_disp_field</span>               <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  
+  <span class="c"># Table args </span>
+  <span class="n">__table_args__</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">UniqueConstraint</span><span class="p">(</span>
+    <span class="s">&#39;three_dimensional&#39;</span><span class="p">,</span>
+    <span class="s">&#39;indenter_pyramid&#39;</span><span class="p">,</span>
+    <span class="s">&#39;rigid_indenter&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sample_mat_type&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sample_mat_args&#39;</span><span class="p">,</span>
+    <span class="s">&#39;indenter_mat_type&#39;</span><span class="p">,</span>
+    <span class="s">&#39;indenter_mat_args&#39;</span><span class="p">,</span>
+    <span class="s">&#39;indenter_half_angle&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sweep_angle&#39;</span><span class="p">,</span>
+    <span class="s">&#39;friction&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mesh_Na&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mesh_Nb&#39;</span><span class="p">,</span> 
+    <span class="s">&#39;mesh_Ns&#39;</span><span class="p">,</span> 
+    <span class="s">&#39;mesh_Nf&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mesh_l&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mesh_Nsweep&#39;</span><span class="p">,</span>
+    <span class="s">&#39;indenter_mesh_Na&#39;</span><span class="p">,</span>
+    <span class="s">&#39;indenter_mesh_Nb&#39;</span><span class="p">,</span> 
+    <span class="s">&#39;indenter_mesh_Ns&#39;</span><span class="p">,</span> 
+    <span class="s">&#39;indenter_mesh_Nf&#39;</span><span class="p">,</span>
+    <span class="s">&#39;indenter_mesh_Nsweep&#39;</span><span class="p">,</span>
+    <span class="s">&#39;max_disp&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sample_mesh_disp&#39;</span><span class="p">),</span>
+    <span class="p">{})</span>
+  
+  <span class="c"># Post processing script</span>
+  <span class="k">def</span> <span class="nf">abqpostproc_byRpt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">three_dimensional</span><span class="p">:</span> <span class="c"># 3D post processing script</span>
+      <span class="n">out</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;# ABQPOSTPROC.PY</span>
+<span class="s"># Warning: executable only in abaqus abaqus viewer -noGUI,... not regular python.</span>
+<span class="s">import sys</span>
+<span class="s">from abapy.postproc import GetFieldOutput_byRpt as gfo</span>
+<span class="s">from abapy.postproc import GetVectorFieldOutput_byRpt as gvfo</span>
+<span class="s">from abapy.postproc import GetTensorFieldOutput_byRpt as gtfo</span>
+<span class="s">from abapy.postproc import GetHistoryOutputByKey as gho</span>
+<span class="s">from abapy.indentation import Get_ContactData</span>
+<span class="s">from abapy.misc import dump</span>
+<span class="s">from odbAccess import openOdb</span>
+<span class="s">from abaqusConstants import JOB_STATUS_COMPLETED_SUCCESSFULLY</span>
+
+
+
+<span class="s"># Odb opening  </span>
+<span class="s">file_name = &#39;#FILE_NAME&#39;</span>
+<span class="s">odb = openOdb(file_name + &#39;.odb&#39;)</span>
+<span class="s">data = {}</span>
+
+<span class="s"># Check job status:</span>
+<span class="s">job_status = odb.diagnosticData.jobStatus</span>
+
+<span class="s">if job_status == JOB_STATUS_COMPLETED_SUCCESSFULLY:</span>
+<span class="s">  data[&#39;completed&#39;] = True </span>
+<span class="s">  # Field Outputs</span>
+<span class="s">  data[&#39;field&#39;] = {}</span>
+<span class="s">  fo = data[&#39;field&#39;]</span>
+<span class="s">  fo[&#39;Uind&#39;] = [</span>
+<span class="s">    gvfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_INDENTER&#39;, </span>
+<span class="s">      step = 1,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;NODAL&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;U&#39;, </span>
+<span class="s">      delete_report = True),</span>
+<span class="s">    gvfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_INDENTER&#39;, </span>
+<span class="s">      step = 2,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;NODAL&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;U&#39;, </span>
+<span class="s">      delete_report = True)]</span>
+<span class="s">  </span>
+<span class="s">  fo[&#39;U&#39;] = [</span>
+<span class="s">    gvfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 1,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;NODAL&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;U&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True),</span>
+<span class="s">    gvfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 2,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;NODAL&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;U&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True)]</span>
+<span class="s">      </span>
+<span class="s">  fo[&#39;S&#39;] = [</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 1,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;S&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True),</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 2,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;S&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True)]</span>
+<span class="s">   </span>
+<span class="s">  fo[&#39;LE&#39;] = [</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 1,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;LE&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True),</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 2,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;LE&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True)] </span>
+<span class="s">      </span>
+<span class="s">  fo[&#39;EE&#39;] = [</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 1,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;EE&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True),</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 2,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;EE&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True)]     </span>
+<span class="s">  </span>
+<span class="s">  fo[&#39;PE&#39;] = [</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 1,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;PE&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True),</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 2,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;PE&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True)] </span>
+<span class="s">  </span>
+<span class="s">  fo[&#39;PEEQ&#39;] = [</span>
+<span class="s">    gfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 1,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;PEEQ&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True),</span>
+<span class="s">    gfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 2,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;PEEQ&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True)] </span>
+<span class="s">  # History Outputs</span>
+<span class="s">  data[&#39;history&#39;] = {} </span>
+<span class="s">  ho = data[&#39;history&#39;]</span>
+<span class="s">  ref_node = odb.rootAssembly.instances[&#39;I_INDENTER&#39;].nodeSets[&#39;REF_NODE&#39;].nodes[0].label</span>
+<span class="s">  ho[&#39;force&#39;] =  gho(odb,&#39;RF2&#39;)[&#39;Node I_INDENTER.&#39;+str(ref_node)] # GetFieldOutputByKey returns all the occurences of the required output (here &#39;RF2&#39;) and stores it in a dict. Each dict key refers to a location. Here we have to specify the location (&#39;Node I_INDENTER.1&#39;) mainly for displacement which has been requested at several locations.</span>
+<span class="s">  ho[&#39;disp&#39;] =   gho(odb,&#39;U2&#39;)[&#39;Node I_INDENTER.&#39;+str(ref_node)]</span>
+<span class="s">  tip_node = odb.rootAssembly.instances[&#39;I_INDENTER&#39;].nodeSets[&#39;TIP_NODE&#39;].nodes[0].label</span>
+<span class="s">  ho[&#39;tip_penetration&#39;] =   gho(odb,&#39;U2&#39;)[&#39;Node I_INDENTER.&#39;+str(tip_node)]</span>
+<span class="s">  ho[&#39;allse&#39;] =   gho(odb,&#39;ALLSE&#39;).values()[0]</span>
+<span class="s">  ho[&#39;allpd&#39;] =   gho(odb,&#39;ALLPD&#39;).values()[0]</span>
+<span class="s">  ho[&#39;allfd&#39;] =   gho(odb,&#39;ALLFD&#39;).values()[0]</span>
+<span class="s">  ho[&#39;allwk&#39;] =   gho(odb,&#39;ALLWK&#39;).values()[0]</span>
+<span class="s">  #ho[&#39;carea&#39;] =  gho(odb,&#39;CAREA    ASSEMBLY_I_SAMPLE_SURFACE_FACES/ASSEMBLY_I_INDENTER_SURFACE_FACES&#39;).values()[0]</span>
+<span class="s">  </span>
+<span class="s">  # CONTACT DATA PROCESSING</span>
+<span class="s">  ho[&#39;contact&#39;] = Get_ContactData(odb = odb, instance = &#39;I_SAMPLE&#39;, node_set = &#39;TOP_NODES&#39;)</span>
+<span class="s"> </span>
+<span class="s">else:</span>
+<span class="s">  data[&#39;completed&#39;] = False</span>
+<span class="s"># Closing and dumping</span>
+<span class="s">odb.close()</span>
+<span class="s">dump(data, file_name+&#39;.pckl&#39;)&quot;&quot;&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">out</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;# ABQPOSTPROC.PY</span>
+<span class="s"># Warning: executable only in abaqus abaqus viewer -noGUI,... not regular python.</span>
+<span class="s">import sys</span>
+<span class="s">from abapy.postproc import GetFieldOutput_byRpt as gfo</span>
+<span class="s">from abapy.postproc import GetVectorFieldOutput_byRpt as gvfo</span>
+<span class="s">from abapy.postproc import GetTensorFieldOutput_byRpt as gtfo</span>
+<span class="s">from abapy.postproc import GetHistoryOutputByKey as gho</span>
+<span class="s">from abapy.indentation import Get_ContactData</span>
+<span class="s">from abapy.misc import dump</span>
+<span class="s">from odbAccess import openOdb</span>
+<span class="s">from abaqusConstants import JOB_STATUS_COMPLETED_SUCCESSFULLY</span>
+
+
+
+<span class="s"># Odb opening  </span>
+<span class="s">file_name = &#39;#FILE_NAME&#39;</span>
+<span class="s">odb = openOdb(file_name + &#39;.odb&#39;)</span>
+<span class="s">data = {}</span>
+
+<span class="s"># Check job status:</span>
+<span class="s">job_status = odb.diagnosticData.jobStatus</span>
+
+<span class="s">if job_status == JOB_STATUS_COMPLETED_SUCCESSFULLY:</span>
+<span class="s">  data[&#39;completed&#39;] = True </span>
+<span class="s">  # Field Outputs</span>
+<span class="s">  data[&#39;field&#39;] = {}</span>
+<span class="s">  fo = data[&#39;field&#39;]</span>
+<span class="s">  fo[&#39;Uind&#39;] = [</span>
+<span class="s">    gvfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_INDENTER&#39;, </span>
+<span class="s">      step = 1,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;NODAL&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;U&#39;, </span>
+<span class="s">      delete_report = True),</span>
+<span class="s">    gvfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_INDENTER&#39;, </span>
+<span class="s">      step = 2,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;NODAL&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;U&#39;, </span>
+<span class="s">      delete_report = True)]</span>
+<span class="s">  </span>
+<span class="s">  fo[&#39;U&#39;] = [</span>
+<span class="s">    gvfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 1,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;NODAL&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;U&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True),</span>
+<span class="s">    gvfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 2,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;NODAL&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;U&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True)]</span>
+<span class="s">      </span>
+<span class="s">  fo[&#39;S&#39;] = [</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 1,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;S&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True),</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 2,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;S&#39;, </span>
+<span class="s">      delete_report = True)]</span>
+<span class="s">   </span>
+<span class="s">  fo[&#39;LE&#39;] = [</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 1,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;LE&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True),</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 2,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;LE&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True)] </span>
+<span class="s">      </span>
+<span class="s">  fo[&#39;EE&#39;] = [</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 1,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;EE&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True),</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 2,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;EE&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True)]     </span>
+<span class="s">  </span>
+<span class="s">  fo[&#39;PE&#39;] = [</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 1,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;PE&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True),</span>
+<span class="s">    gtfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 2,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;PE&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True)] </span>
+<span class="s">  </span>
+<span class="s">  fo[&#39;PEEQ&#39;] = [</span>
+<span class="s">    gfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 1,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;PEEQ&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True),</span>
+<span class="s">    gfo(odb = odb, </span>
+<span class="s">      instance = &#39;I_SAMPLE&#39;, </span>
+<span class="s">      step = 2,</span>
+<span class="s">      frame = -1,</span>
+<span class="s">      original_position = &#39;INTEGRATION_POINT&#39;, </span>
+<span class="s">      new_position = &#39;NODAL&#39;, </span>
+<span class="s">      position = &#39;node&#39;,</span>
+<span class="s">      field = &#39;PEEQ&#39;, </span>
+<span class="s">      sub_set_type = &#39;element&#39;, </span>
+<span class="s">      delete_report = True)] </span>
+<span class="s">  # History Outputs</span>
+<span class="s">  data[&#39;history&#39;] = {} </span>
+<span class="s">  ho = data[&#39;history&#39;]</span>
+<span class="s">  ref_node = odb.rootAssembly.instances[&#39;I_INDENTER&#39;].nodeSets[&#39;REF_NODE&#39;].nodes[0].label</span>
+<span class="s">  ho[&#39;force&#39;] =  gho(odb,&#39;RF2&#39;)[&#39;Node I_INDENTER.&#39;+str(ref_node)] # GetFieldOutputByKey returns all the occurences of the required output (here &#39;RF2&#39;) and stores it in a dict. Each dict key refers to a location. Here we have to specify the location (&#39;Node I_INDENTER.1&#39;) mainly for displacement which has been requested at several locations.</span>
+<span class="s">  ho[&#39;disp&#39;] =   gho(odb,&#39;U2&#39;)[&#39;Node I_INDENTER.&#39;+str(ref_node)]</span>
+<span class="s">  tip_node = odb.rootAssembly.instances[&#39;I_INDENTER&#39;].nodeSets[&#39;TIP_NODE&#39;].nodes[0].label</span>
+<span class="s">  ho[&#39;tip_penetration&#39;] =   gho(odb,&#39;U2&#39;)[&#39;Node I_INDENTER.&#39;+str(tip_node)]</span>
+<span class="s">  ho[&#39;allse&#39;] =   gho(odb,&#39;ALLSE&#39;).values()[0]</span>
+<span class="s">  ho[&#39;allpd&#39;] =   gho(odb,&#39;ALLPD&#39;).values()[0]</span>
+<span class="s">  ho[&#39;allfd&#39;] =   gho(odb,&#39;ALLFD&#39;).values()[0]</span>
+<span class="s">  ho[&#39;allwk&#39;] =   gho(odb,&#39;ALLWK&#39;).values()[0]</span>
+<span class="s">  #ho[&#39;carea&#39;] =  gho(odb,&#39;CAREA    ASSEMBLY_I_SAMPLE_SURFACE_FACES/ASSEMBLY_I_INDENTER_SURFACE_FACES&#39;).values()[0]</span>
+<span class="s">  </span>
+<span class="s">  # CONTACT DATA PROCESSING</span>
+<span class="s">  ho[&#39;contact&#39;] = Get_ContactData(odb = odb, instance = &#39;I_SAMPLE&#39;, node_set = &#39;TOP_NODES&#39;)</span>
+<span class="s"> </span>
+<span class="s">else:</span>
+<span class="s">  data[&#39;completed&#39;] = False</span>
+<span class="s"># Closing and dumping</span>
+<span class="s">odb.close()</span>
+<span class="s">dump(data, file_name+&#39;.pckl&#39;)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">out</span>
+  <span class="c"># Scalar Outputs</span>
+  <span class="c"># Load Prefactor</span>
+  <span class="n">load_prefactor</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">Load_prefactor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Defined during loading phase by force = c * penetration **2 where c is the load prefactor.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">load_prefactor</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">force_hist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">disp_hist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">method</span> <span class="o">=</span> <span class="s">&#39;simps&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">update</span><span class="p">:</span> 
+      <span class="bp">self</span><span class="o">.</span><span class="n">load_prefactor</span> <span class="o">=</span> <span class="n">load_prefactor</span>
+    <span class="k">else</span><span class="p">:</span> 
+      <span class="k">return</span> <span class="n">load_prefactor</span>
+ 
+  <span class="c"># Irreversible work ratio:</span>
+  <span class="n">irreversible_work_ratio</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">Irreversible_work_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Irreversible work divided by the total work</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">unload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_work_hist</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">irreversible_work_ratio</span> <span class="o">=</span> <span class="mi">3</span><span class="o">*</span> <span class="n">unload</span><span class="o">.</span><span class="n">data_min</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_prefactor</span>
+    <span class="k">if</span> <span class="n">update</span><span class="p">:</span> 
+      <span class="bp">self</span><span class="o">.</span><span class="n">irreversible_work_ratio</span> <span class="o">=</span> <span class="n">irreversible_work_ratio</span>
+    <span class="k">else</span><span class="p">:</span> 
+      <span class="k">return</span> <span class="n">irreversible_work_ratio</span>
+  
+  <span class="c"># Plastic work ratio:</span>
+  <span class="n">plastic_work_ratio</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">Plastic_work_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Plastic work divided by the total work</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">plastic_work_ratio</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">plastic_work_hist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_work_hist</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">average</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">update</span><span class="p">:</span> 
+      <span class="bp">self</span><span class="o">.</span><span class="n">plastic_work_ratio</span> <span class="o">=</span> <span class="n">plastic_work_ratio</span>
+    <span class="k">else</span><span class="p">:</span> 
+      <span class="k">return</span> <span class="n">plastic_work_ratio</span>
+  
+  <span class="c"># Unloading fit</span>
+  <span class="n">contact_stiffness</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">)</span>
+  <span class="n">final_displacement</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">)</span>
+  <span class="n">unload_exponent</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">Unloading_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Computes the contact stiffness and the final displacement using a power fit of the unloading curve between 0% and 100% of the max force. The final penetration is divided by the maximum penetration and the contact stiffness is multiplied by the ratio of the max displacement by the max force.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+    <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">leastsq</span>
+    <span class="n">unload</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">disp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disp_hist</span><span class="p">[</span><span class="n">unload</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">force</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">force_hist</span><span class="p">[</span><span class="n">unload</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">max_force</span> <span class="o">=</span> <span class="n">force</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">max_disp</span> <span class="o">=</span> <span class="n">disp</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">loc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">force</span> <span class="o">&gt;=</span> <span class="n">max_force</span> <span class="o">*</span> <span class="o">.</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">disp</span> <span class="o">=</span> <span class="n">disp</span><span class="p">[</span><span class="n">loc</span><span class="p">]</span> <span class="o">/</span><span class="n">max_disp</span>
+    <span class="n">force</span> <span class="o">=</span> <span class="n">force</span><span class="p">[</span><span class="n">loc</span><span class="p">]</span> <span class="o">/</span> <span class="n">max_force</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">k</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">)</span> <span class="p">)</span><span class="o">**</span><span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> 
+    <span class="n">err</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="p">(</span><span class="n">func</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">k0</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.</span><span class="p">]</span>
+    <span class="n">k</span><span class="p">,</span> <span class="n">success</span> <span class="o">=</span> <span class="n">leastsq</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">k0</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">disp</span><span class="p">,</span><span class="n">force</span><span class="p">),</span> <span class="n">maxfev</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">final_displacement</span> <span class="o">=</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">max_disp</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">contact_stiffness</span> <span class="o">=</span> <span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">-</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> 
+    <span class="bp">self</span><span class="o">.</span><span class="n">unload_exponent</span> <span class="o">=</span> <span class="n">k</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> 
+       
+  <span class="c"># Contact area:</span>
+  <span class="n">contact_area</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">Float</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">Contact_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update</span> <span class="o">=</span> <span class="bp">False</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Cross contact areat under load divided by the square of the indenter displacement.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+    <span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">HistoryOutput</span>
+    <span class="n">contact_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contact_data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c"># we only look at the loading 1 here</span>
+    <span class="n">ca</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">contact_step</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">contact_area</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">contact_step</span><span class="p">))])</span>
+    <span class="n">disp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">disp_hist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">ca</span> <span class="o">=</span> <span class="n">ca</span> <span class="o">/</span> <span class="p">(</span><span class="n">disp</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">contact_area</span> <span class="o">=</span> <span class="n">ca</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">update</span><span class="p">:</span> 
+      <span class="bp">self</span><span class="o">.</span><span class="n">contact_area</span> <span class="o">=</span> <span class="n">contact_area</span>
+    <span class="k">else</span><span class="p">:</span> 
+      <span class="k">return</span> <span class="n">contact_area</span>
+  
+  
+  <span class="c"># Tip penetration    </span>
+  <span class="n">tip_penetration</span> <span class="o">=</span> <span class="n">Column</span><span class="p">(</span><span class="n">PickleType</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">Tip_penetration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">update</span> <span class="o">=</span> <span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Tip penetration under load divided by the displacement.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">tip_pen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tip_penetration_hist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">disp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">disp_hist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">tip_pen</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">tip_pen</span><span class="o">/</span><span class="n">disp</span><span class="p">)</span><span class="o">.</span><span class="n">average</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">update</span><span class="p">:</span> 
+      <span class="bp">self</span><span class="o">.</span><span class="n">tip_penetration</span> <span class="o">=</span> <span class="n">tip_pen</span>
+    <span class="k">else</span><span class="p">:</span> 
+      <span class="k">return</span> <span class="n">tip_penetration</span>
+  
+  
+  
+ 
+  <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s">&#39;&lt;Simulation: id={0}&gt;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+  
+  <span class="k">def</span> <span class="nf">difficulty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_type</span> <span class="o">==</span> <span class="s">&#39;elastic&#39;</span><span class="p">:</span> <span class="n">mat_diff</span> <span class="o">=</span> <span class="mf">1.</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_type</span> <span class="o">==</span> <span class="s">&#39;vonmises&#39;</span><span class="p">:</span> 
+      <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span>
+      <span class="n">mat_diff</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s">&#39;young_modulus&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">args</span><span class="p">[</span><span class="s">&#39;yield_stress&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_type</span> <span class="o">==</span> <span class="s">&#39;druckerprager&#39;</span><span class="p">:</span> 
+      <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span>
+      <span class="n">mat_diff</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s">&#39;young_modulus&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">args</span><span class="p">[</span><span class="s">&#39;yield_stress&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_type</span> <span class="o">==</span> <span class="s">&#39;hollomon&#39;</span><span class="p">:</span> 
+      <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span>
+      <span class="n">mat_diff</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s">&#39;young_modulus&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">args</span><span class="p">[</span><span class="s">&#39;yield_stress&#39;</span><span class="p">]</span>
+    <span class="n">mesh_diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_disp</span> <span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_l</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_Na</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Nb</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.</span>
+    <span class="k">return</span> <span class="n">mat_diff</span> <span class="o">*</span> <span class="n">mesh_diff</span>
+  
+  <span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">abapy.indentation</span> <span class="kn">import</span> <span class="n">IndentationMesh</span><span class="p">,</span> <span class="n">Step</span><span class="p">,</span> <span class="n">DeformableCone2D</span><span class="p">,</span> <span class="n">DeformableCone3D</span>
+    <span class="kn">from</span> <span class="nn">abapy.materials</span> <span class="kn">import</span> <span class="n">VonMises</span><span class="p">,</span> <span class="n">Elastic</span><span class="p">,</span> <span class="n">DruckerPrager</span><span class="p">,</span> <span class="n">Hollomon</span>
+    <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">tan</span><span class="p">,</span> <span class="n">radians</span>
+    <span class="n">mesh_l</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_disp</span> <span class="p">,</span> <span class="n">tan</span><span class="p">(</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_half_angle</span><span class="p">))</span> <span class="p">)</span> <span class="c"># Adjusting mesh size to max_disp</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">three_dimensional</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">IndentationMesh</span><span class="p">(</span>
+        <span class="n">Na</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Na</span><span class="p">,</span> 
+        <span class="n">Nb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Nb</span><span class="p">,</span> 
+        <span class="n">Ns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Ns</span><span class="p">,</span> 
+        <span class="n">Nf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Nf</span><span class="p">,</span> 
+        <span class="n">l</span> <span class="o">=</span> <span class="n">mesh_l</span><span class="p">)</span><span class="o">.</span><span class="n">sweep</span><span class="p">(</span>
+        <span class="n">sweep_angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweep_angle</span><span class="p">,</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Nsweep</span><span class="p">)</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mesh_disp</span> <span class="o">!=</span> <span class="bp">False</span><span class="p">:</span>
+        <span class="n">field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">eval_vectorFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_mesh_disp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">apply_displacement</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nf</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="n">Nf_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Nf</span> 
+      <span class="bp">self</span><span class="o">.</span><span class="n">indenter</span> <span class="o">=</span> <span class="n">DeformableCone3D</span><span class="p">(</span>
+        <span class="n">half_angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_half_angle</span><span class="p">,</span> 
+        <span class="n">sweep_angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweep_angle</span><span class="p">,</span>
+        <span class="n">pyramid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_pyramid</span><span class="p">,</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">mesh_l</span><span class="p">,</span> 
+        <span class="n">Na</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Na</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Na</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Na</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Na</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span> 
+        <span class="n">Nb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Nb</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nb</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nb</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nb</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span> 
+        <span class="n">Ns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Ns</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Ns</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Ns</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Ns</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span> 
+        <span class="n">Nf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Nf</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nf</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nf</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nf</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span> 
+        <span class="n">N</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Nsweep</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nsweep</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nsweep</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nsweep</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="n">rigid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rigid_indenter</span><span class="p">)</span>
+      
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">IndentationMesh</span><span class="p">(</span>
+        <span class="n">Na</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Na</span><span class="p">,</span> 
+        <span class="n">Nb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Nb</span><span class="p">,</span> 
+        <span class="n">Ns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Ns</span><span class="p">,</span> 
+        <span class="n">Nf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Nf</span><span class="p">,</span> 
+        <span class="n">l</span> <span class="o">=</span> <span class="n">mesh_l</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">indenter</span> <span class="o">=</span> <span class="n">DeformableCone2D</span><span class="p">(</span>
+        <span class="n">half_angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_half_angle</span><span class="p">,</span> 
+        <span class="n">l</span> <span class="o">=</span> <span class="n">mesh_l</span><span class="p">,</span> 
+        <span class="n">Na</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Na</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Na</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Na</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Na</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span> 
+        <span class="n">Nb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Nb</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nb</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nb</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nb</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span> 
+        <span class="n">Ns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Ns</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Ns</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Ns</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Ns</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span> 
+        <span class="n">Nf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_Nf</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nf</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nf</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mesh_Nf</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">),</span> 
+        <span class="n">rigid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rigid_indenter</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="p">[</span>                                              
+      <span class="n">Step</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;loading0&#39;</span><span class="p">,</span> 
+        <span class="n">nframes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frames</span><span class="p">,</span> 
+        <span class="n">disp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_disp</span><span class="o">/</span><span class="mf">2.</span><span class="p">,</span> 
+        <span class="n">boundaries_3D</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">three_dimensional</span><span class="p">),</span>
+      <span class="n">Step</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;loading1&#39;</span><span class="p">,</span> 
+        <span class="n">nframes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frames</span><span class="p">,</span> 
+        <span class="n">disp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_disp</span><span class="p">,</span>
+        <span class="n">boundaries_3D</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">three_dimensional</span><span class="p">),</span> 
+      <span class="n">Step</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;unloading&#39;</span><span class="p">,</span> 
+        <span class="n">nframes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frames</span><span class="p">,</span> 
+        <span class="n">disp</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">,</span>
+        <span class="n">boundaries_3D</span><span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">three_dimensional</span><span class="p">)]</span> 
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_type</span> <span class="o">==</span> <span class="s">&#39;hollomon&#39;</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat</span> <span class="o">=</span> <span class="n">Hollomon</span><span class="p">(</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="s">&#39;SAMPLE_MAT&#39;</span><span class="p">,</span> 
+        <span class="n">E</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;young_modulus&#39;</span><span class="p">],</span> 
+        <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;poisson_ratio&#39;</span><span class="p">],</span> 
+        <span class="n">sy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;yield_stress&#39;</span><span class="p">],</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;hardening&#39;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_type</span> <span class="o">==</span> <span class="s">&#39;druckerprager&#39;</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat</span> <span class="o">=</span> <span class="n">DruckerPrager</span><span class="p">(</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="s">&#39;SAMPLE_MAT&#39;</span><span class="p">,</span> 
+        <span class="n">E</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;young_modulus&#39;</span><span class="p">],</span> 
+        <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;poisson_ratio&#39;</span><span class="p">],</span> 
+        <span class="n">sy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;yield_stress&#39;</span><span class="p">],</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;beta&#39;</span><span class="p">],</span>
+        <span class="n">psi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;psi&#39;</span><span class="p">],</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;k&#39;</span><span class="p">])</span>   
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_type</span> <span class="o">==</span> <span class="s">&#39;vonmises&#39;</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat</span> <span class="o">=</span> <span class="n">VonMises</span><span class="p">(</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="s">&#39;SAMPLE_MAT&#39;</span><span class="p">,</span> 
+        <span class="n">E</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;young_modulus&#39;</span><span class="p">],</span> 
+        <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;poisson_ratio&#39;</span><span class="p">],</span> 
+        <span class="n">sy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;yield_stress&#39;</span><span class="p">])</span>   
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_type</span> <span class="o">==</span> <span class="s">&#39;elastic&#39;</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat</span> <span class="o">=</span> <span class="n">Elastic</span><span class="p">(</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="s">&#39;SAMPLE_MAT&#39;</span><span class="p">,</span> 
+        <span class="n">E</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;young_modulus&#39;</span><span class="p">],</span> 
+        <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;poisson_ratio&#39;</span><span class="p">])</span>  
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_mat_type</span> <span class="o">==</span> <span class="s">&#39;elastic&#39;</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">indenter_mat</span> <span class="o">=</span> <span class="n">Elastic</span><span class="p">(</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="s">&#39;INDENTER_MAT&#39;</span><span class="p">,</span> 
+        <span class="n">E</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_mat_args</span><span class="p">[</span><span class="s">&#39;young_modulus&#39;</span><span class="p">],</span> 
+        <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indenter_mat_args</span><span class="p">[</span><span class="s">&#39;poisson_ratio&#39;</span><span class="p">])</span>  
+    
+  
+  
+  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">work_dir</span> <span class="o">=</span> <span class="s">&#39;workdir/&#39;</span><span class="p">,</span> <span class="n">abqlauncher</span> <span class="o">=</span> <span class="s">&#39;/opt/Abaqus/6.9/Commands/abaqus&#39;</span><span class="p">):</span>
+    <span class="k">print</span> <span class="s">&#39;# Running {0}: id={1}, frames = {2}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frames</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span><span class="p">()</span>
+    <span class="kn">from</span> <span class="nn">abapy.indentation</span> <span class="kn">import</span> <span class="n">Manager</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+    <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+    <span class="n">simname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span> <span class="o">+</span> <span class="s">&#39;_{0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="c"># Creating abq postproc script</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;{0}{1}_abqpostproc.py&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">work_dir</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">),</span><span class="s">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span> <span class="o">+</span> <span class="s">&#39;_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abqpostproc_byRpt</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;#FILE_NAME&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">abqpostproc</span> <span class="o">=</span> <span class="s">&#39;{0}_abqpostproc.py&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">)</span>
+    <span class="c">#---------------------------------------</span>
+    <span class="c"># Setting simulation manager</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">()</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">set_abqlauncher</span><span class="p">(</span><span class="s">&#39;/opt/Abaqus/6.9/Commands/abaqus&#39;</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">set_workdir</span><span class="p">(</span><span class="n">work_dir</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">set_simname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span> <span class="o">+</span> <span class="s">&#39;_{0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">set_abqpostproc</span><span class="p">(</span><span class="n">abqpostproc</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">set_samplemesh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">set_samplemat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_mat</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">set_indentermat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter_mat</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">set_friction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">friction</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">set_steps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">set_indenter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indenter</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">set_is_3D</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">three_dimensional</span><span class="p">)</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">set_pypostprocfunc</span><span class="p">(</span><span class="k">lambda</span> <span class="n">data</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span> <span class="c"># Here we just want to get back data</span>
+    <span class="c">#---------------------------------------</span>
+    <span class="c"># Running simulation and post processing</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">erase_files</span><span class="p">()</span>           <span class="c"># Workdir cleaning</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">make_inp</span><span class="p">()</span>              <span class="c"># INP creation</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">run_sim</span><span class="p">()</span>               <span class="c"># Running the simulation</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">run_abqpostproc</span><span class="p">()</span>       <span class="c"># First round of post processing in Abaqus</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">run_pypostproc</span><span class="p">()</span> <span class="c"># Second round of custom post processing in regular Python</span>
+    <span class="c">#m.erase_files()          # Workdir cleaning</span>
+    <span class="c">#---------------------------------------</span>
+    <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;completed&#39;</span><span class="p">]:</span>
+      <span class="k">print</span> <span class="s">&#39;# Simulation completed.&#39;</span>
+      <span class="c"># Storing raw data</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">completed</span> <span class="o">=</span> <span class="bp">True</span>
+      <span class="n">sweep_factor</span> <span class="o">=</span> <span class="mf">1.</span> <span class="c"># This factor aims to modify values that are affected by the fact that only a portion of the problem is solved due to symmetries.</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">three_dimensional</span><span class="p">:</span> <span class="n">sweep_factor</span> <span class="o">=</span> <span class="mf">360.</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sweep_angle</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">force_hist</span> <span class="o">=</span> <span class="o">-</span> <span class="n">sweep_factor</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;history&#39;</span><span class="p">][</span><span class="s">&#39;force&#39;</span><span class="p">]</span> 
+      <span class="bp">self</span><span class="o">.</span><span class="n">disp_hist</span> <span class="o">=</span> <span class="o">-</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;history&#39;</span><span class="p">][</span><span class="s">&#39;disp&#39;</span><span class="p">]</span> 
+      <span class="bp">self</span><span class="o">.</span><span class="n">elastic_work_hist</span> <span class="o">=</span> <span class="n">sweep_factor</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;history&#39;</span><span class="p">][</span><span class="s">&#39;allse&#39;</span><span class="p">]</span> 
+      <span class="bp">self</span><span class="o">.</span><span class="n">plastic_work_hist</span> <span class="o">=</span> <span class="n">sweep_factor</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;history&#39;</span><span class="p">][</span><span class="s">&#39;allpd&#39;</span><span class="p">]</span> 
+      <span class="bp">self</span><span class="o">.</span><span class="n">friction_work_hist</span> <span class="o">=</span> <span class="n">sweep_factor</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;history&#39;</span><span class="p">][</span><span class="s">&#39;allfd&#39;</span><span class="p">]</span> 
+      <span class="bp">self</span><span class="o">.</span><span class="n">total_work_hist</span> <span class="o">=</span> <span class="n">sweep_factor</span> <span class="o">*</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;history&#39;</span><span class="p">][</span><span class="s">&#39;allwk&#39;</span><span class="p">]</span> 
+      <span class="bp">self</span><span class="o">.</span><span class="n">tip_penetration_hist</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;history&#39;</span><span class="p">][</span><span class="s">&#39;tip_penetration&#39;</span><span class="p">]</span> 
+      <span class="bp">self</span><span class="o">.</span><span class="n">disp_field</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;field&#39;</span><span class="p">][</span><span class="s">&#39;U&#39;</span><span class="p">]</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">ind_disp_field</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;field&#39;</span><span class="p">][</span><span class="s">&#39;Uind&#39;</span><span class="p">]</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">stress_field</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;field&#39;</span><span class="p">][</span><span class="s">&#39;S&#39;</span><span class="p">]</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">total_strain_field</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;field&#39;</span><span class="p">][</span><span class="s">&#39;LE&#39;</span><span class="p">]</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">elastic_strain_field</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;field&#39;</span><span class="p">][</span><span class="s">&#39;EE&#39;</span><span class="p">]</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">plastic_strain_field</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;field&#39;</span><span class="p">][</span><span class="s">&#39;PE&#39;</span><span class="p">]</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">equivalent_plastic_strain_field</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;field&#39;</span><span class="p">][</span><span class="s">&#39;PEEQ&#39;</span><span class="p">]</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">contact_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;history&#39;</span><span class="p">][</span><span class="s">&#39;contact&#39;</span><span class="p">]</span>
+      <span class="c"># Updating data</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">Load_prefactor</span><span class="p">(</span><span class="n">update</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">Irreversible_work_ratio</span><span class="p">(</span><span class="n">update</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">Plastic_work_ratio</span><span class="p">(</span><span class="n">update</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">Tip_penetration</span><span class="p">(</span><span class="n">update</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">Contact_area</span><span class="p">(</span><span class="n">update</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">Unloading_fit</span><span class="p">()</span>
+    <span class="c">#---------------------------------------</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">print</span> <span class="s">&#39;# Simulation not completed.&#39;</span>
+<span class="c">#----------------------------------------------------------------------------------------------------------------      </span>
+
+
+
+<span class="c">#----------------------------------------------------------------------------------------------------------------    </span>
+<span class="c"># DATABASE MANAGEMENT CLASS</span>
+<span class="c"># </span>
+<span class="k">class</span> <span class="nc">Database_Manager</span><span class="p">:</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">database_dir</span><span class="p">,</span> <span class="n">database_name</span><span class="p">,</span> <span class="n">cls</span> <span class="p">,</span> <span class="n">work_dir</span><span class="p">,</span> <span class="n">abqlauncher</span><span class="p">):</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="s">&#39;sqlite:///{0}{1}.db&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">database_dir</span><span class="p">,</span> <span class="n">database_name</span><span class="p">)</span>
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="n">db</span><span class="p">,</span><span class="n">echo</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="n">Base</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span> 
+    <span class="n">Session</span> <span class="o">=</span> <span class="n">sessionmaker</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="n">engine</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">Session</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">cls</span> <span class="o">=</span> <span class="n">cls</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span> <span class="o">=</span> <span class="n">work_dir</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">abqlauncher</span> <span class="o">=</span> <span class="n">abqlauncher</span>
+    
+  <span class="k">def</span> <span class="nf">add_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulation</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Adds a simulation to the database.</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">    * simulation: Simulation class instance</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">simulation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">)</span> <span class="o">==</span> <span class="bp">False</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">,</span> <span class="s">&#39;simulation must be Simulation instance&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="k">except</span><span class="p">:</span> 
+      <span class="k">print</span> <span class="s">&#39;simulation already exists or has not been declared corectly, nothing changed&#39;</span> 
+      <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+      
+  <span class="k">def</span> <span class="nf">get_next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Returns the next simulation to do regarding to difficulty criterias defined under.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">simus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="n">completed</span> <span class="o">==</span> <span class="bp">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">simus</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> <span class="o">!=</span> <span class="p">[]:</span>
+      <span class="c"># finding max priority</span>
+      <span class="n">max_priority</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="n">completed</span> <span class="o">==</span> <span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="n">priority</span><span class="p">))</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">priority</span>
+      <span class="c"># finding less difficult simulation with max priority</span>
+      <span class="n">simus</span> <span class="o">=</span> <span class="n">simus</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="n">priority</span> <span class="o">==</span> <span class="n">max_priority</span><span class="p">)</span>
+      <span class="n">simus</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">simus</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">simu</span><span class="p">:</span> <span class="n">simu</span><span class="o">.</span><span class="n">difficulty</span><span class="p">())</span>
+      <span class="n">simu</span> <span class="o">=</span> <span class="n">simus</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="c"># Adjusting number of requested frames</span>
+      <span class="n">diff</span> <span class="o">=</span> <span class="n">simu</span><span class="o">.</span><span class="n">difficulty</span><span class="p">()</span>
+      <span class="n">completed_simus</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="n">completed</span> <span class="o">==</span> <span class="bp">True</span><span class="p">)</span>
+      <span class="k">for</span> <span class="n">csim</span> <span class="ow">in</span> <span class="n">completed_simus</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">csim</span><span class="o">.</span><span class="n">difficulty</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">diff</span><span class="p">:</span>
+          <span class="k">if</span> <span class="n">csim</span><span class="o">.</span><span class="n">frames</span> <span class="o">&gt;</span> <span class="n">simu</span><span class="o">.</span><span class="n">frames</span><span class="p">:</span> <span class="n">simu</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">csim</span><span class="o">.</span><span class="n">frames</span>
+      <span class="n">completed_simus</span> <span class="o">=</span> <span class="p">[</span><span class="n">c_simu</span> <span class="k">for</span> <span class="n">c_simu</span> <span class="ow">in</span> <span class="n">completed_simus</span> <span class="k">if</span> <span class="n">c_simu</span><span class="o">.</span><span class="n">difficulty</span> <span class="o">&lt;=</span> <span class="n">diff</span><span class="p">]</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">simu</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">return</span> <span class="n">simu</span>
+    
+  <span class="k">def</span> <span class="nf">run_next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Runs the next simulation.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">simu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">simu</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">simu</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">work_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">work_dir</span><span class="p">,</span> <span class="n">abqlauncher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">abqlauncher</span><span class="p">)</span>  
+        <span class="k">if</span> <span class="n">simu</span><span class="o">.</span><span class="n">completed</span><span class="p">:</span> <span class="k">break</span>
+        <span class="n">simu</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">simu</span><span class="o">.</span><span class="n">frames</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">print</span> <span class="s">&#39;# Number of frames changed to {0}.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">simu</span><span class="o">.</span><span class="n">frames</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">print</span> <span class="s">&#39;# No more simulations to run&#39;</span>
+  
+  <span class="k">def</span> <span class="nf">run_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Runs all the simulation in the right order until they all have been completed.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+      <span class="n">left_sims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="o">.</span><span class="n">completed</span> <span class="o">==</span> <span class="bp">False</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+      <span class="k">if</span> <span class="n">left_sims</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> 
+        <span class="k">print</span> <span class="s">&#39;# All simulations have been run.&#39;</span>
+        <span class="k">break</span>
+      <span class="k">print</span> <span class="s">&#39;# {0} simulations left to run.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">left_sims</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">run_next</span><span class="p">()</span>
+  
+  <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Shortcut for database queries.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cls</span><span class="p">)</span>
+ <span class="c">#----------------------------------------------------------------------------------------------------------------</span>
+</pre></div>
+</div>
+<p>Then we need to define some basic settings here <a class="reference download internal" href="_downloads/settings.py"><tt class="xref download docutils literal"><span class="pre">settings.py</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">classes</span> <span class="kn">import</span> <span class="n">Simulation</span><span class="p">,</span> <span class="n">Database_Manager</span>
+
+<span class="c">#----------------------------------------------------------------------------------------------------------------</span>
+<span class="c"># SETTINGS</span>
+<span class="n">work_dir</span>      <span class="o">=</span> <span class="s">&#39;workdir/&#39;</span>
+<span class="n">plot_dir</span>      <span class="o">=</span> <span class="s">&#39;plots/&#39;</span>
+<span class="n">database_dir</span>  <span class="o">=</span> <span class="s">&#39;database/&#39;</span>
+<span class="n">database_name</span> <span class="o">=</span> <span class="s">&#39;database&#39;</span>
+<span class="n">abqlauncher</span>   <span class="o">=</span> <span class="s">&#39;/opt/Abaqus/6.9/Commands/abaqus&#39;</span>
+<span class="n">cls</span>           <span class="o">=</span> <span class="n">Simulation</span>
+<span class="c">#----------------------------------------------------------------------------------------------------------------</span>
+
+<span class="c">#----------------------------------------------------------------------------------------------------------------</span>
+<span class="c"># Starting Database Manager</span>
+<span class="n">db_manager</span> <span class="o">=</span>  <span class="n">Database_Manager</span><span class="p">(</span>
+  <span class="n">work_dir</span> <span class="o">=</span> <span class="n">work_dir</span><span class="p">,</span>
+  <span class="n">database_dir</span> <span class="o">=</span> <span class="n">database_dir</span><span class="p">,</span>
+  <span class="n">database_name</span> <span class="o">=</span> <span class="n">database_name</span><span class="p">,</span>
+  <span class="n">abqlauncher</span> <span class="o">=</span> <span class="n">abqlauncher</span><span class="p">,</span>
+  <span class="n">cls</span> <span class="o">=</span> <span class="n">cls</span><span class="p">)</span>
+<span class="c">#----------------------------------------------------------------------------------------------------------------</span>
+</pre></div>
+</div>
+<p>Then we can load simulations request in the SQLite database <a class="reference download internal" href="_downloads/loader.py"><tt class="xref download docutils literal"><span class="pre">settings.py</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># LOADER: loads simulations to do in the database</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">from</span> <span class="nn">abapy.indentation</span> <span class="kn">import</span> <span class="n">equivalent_half_angle</span>
+
+<span class="c"># Setting up the database</span>
+<span class="nb">execfile</span><span class="p">(</span><span class="s">&#39;settings.py&#39;</span><span class="p">)</span>
+
+<span class="c"># creating some shortcuts</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">db_manager</span>     <span class="c"># database manager</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">db_manager</span><span class="o">.</span><span class="n">cls</span> <span class="c"># useful to call Simulation attributs </span>
+
+
+<span class="c">#--------------------------</span>
+<span class="c"># FIXED PARAMETERS</span>
+<span class="c">#--------------------------</span>
+
+<span class="c"># Fixed Parameters  </span>
+<span class="n">Na_berk</span><span class="p">,</span> <span class="n">Nb_berk</span>     <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span>  <span class="c"># Mesh parameters</span>
+<span class="n">Ns_berk</span><span class="p">,</span> <span class="n">Nf_berk</span>     <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">2</span> <span class="c"># Mesh parameters</span>
+<span class="n">Na_cone</span><span class="p">,</span> <span class="n">Nb_cone</span>     <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span>  <span class="c"># Mesh parameters</span>
+<span class="n">Ns_cone</span><span class="p">,</span> <span class="n">Nf_cone</span>     <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">2</span> <span class="c"># Mesh parameters</span>
+<span class="n">Nsweep</span><span class="p">,</span> <span class="n">sweep_angle</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">60.</span> <span class="c"># Mesh sweep parameters</span>
+<span class="n">E_s</span>        <span class="o">=</span> <span class="mf">1.</span>   <span class="c"># Sample&#39;s Young&#39;s modulus</span>
+<span class="n">nu</span>         <span class="o">=</span> <span class="mf">0.2</span>   <span class="c"># Poisson&#39;s ratio</span>
+<span class="n">half_angle</span> <span class="o">=</span> <span class="mf">65.27</span>  <span class="c"># Indenter half angle of the modified Berkovich</span>
+<span class="n">frames</span>     <span class="o">=</span> <span class="mi">50</span>    <span class="c"># Number frames per step</span>
+
+
+<span class="c">#--------------------------</span>
+<span class="c"># DRUCKER PRAGER SIMULATIONS</span>
+<span class="c">#--------------------------</span>
+
+<span class="n">ey</span>  <span class="o">=</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.015</span><span class="p">,</span><span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">,</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.035</span><span class="p">,</span><span class="mf">0.04</span><span class="p">,</span> <span class="mf">0.045</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">]</span> <span class="c"># Yield strain</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">5.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">,</span> <span class="mf">15.</span><span class="p">,</span> <span class="mf">20.</span><span class="p">,</span> <span class="mf">25.</span><span class="p">,</span> <span class="mf">30.</span><span class="p">]</span>
+
+<span class="k">print</span> <span class="s">&#39;LOADING DRUCKER PRAGER SIMULATIONS&#39;</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ey</span><span class="p">)):</span>
+  <span class="k">print</span> <span class="s">&#39;* epsilon_y = &#39;</span><span class="p">,</span> <span class="n">ey</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+  <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">beta</span><span class="p">)):</span>
+    <span class="k">print</span> <span class="s">&#39;beta= &#39;</span><span class="p">,</span> <span class="n">beta</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+    <span class="k">print</span> <span class="s">&#39;* Conical indenter&#39;</span>
+    <span class="n">simu</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span> 
+      <span class="n">rigid_indenter</span><span class="o">=</span> <span class="bp">True</span><span class="p">,</span> 
+      <span class="n">indenter_pyramid</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+      <span class="n">three_dimensional</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
+      <span class="n">sweep_angle</span> <span class="o">=</span> <span class="n">sweep_angle</span><span class="p">,</span>
+      <span class="n">sample_mat_type</span> <span class="o">=</span> <span class="s">&#39;druckerprager&#39;</span><span class="p">,</span>
+      <span class="n">sample_mat_args</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;young_modulus&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">,</span> <span class="s">&#39;poisson_ratio&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s">&#39;yield_stress&#39;</span><span class="p">:</span> <span class="n">ey</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">E_s</span><span class="p">,</span> <span class="s">&#39;beta&#39;</span><span class="p">:</span> <span class="n">beta</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="s">&#39;psi&#39;</span><span class="p">:</span><span class="n">beta</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="s">&#39;k&#39;</span><span class="p">:</span> <span class="mf">1.</span> <span class="p">},</span>
+      <span class="n">indenter_mat_type</span> <span class="o">=</span> <span class="s">&#39;elastic&#39;</span><span class="p">,</span>
+      <span class="n">indenter_mat_args</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;young_modulus&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">,</span> <span class="s">&#39;poisson_ratio&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">},</span>
+      <span class="n">mesh_Na</span> <span class="o">=</span> <span class="n">Na_cone</span><span class="p">,</span> 
+      <span class="n">mesh_Nb</span> <span class="o">=</span> <span class="n">Nb_cone</span><span class="p">,</span> 
+      <span class="n">mesh_Ns</span> <span class="o">=</span> <span class="n">Ns_cone</span><span class="p">,</span>
+      <span class="n">mesh_Nf</span> <span class="o">=</span> <span class="n">Nf_cone</span><span class="p">,</span> 
+      <span class="n">indenter_mesh_Na</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> 
+      <span class="n">indenter_mesh_Nb</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> 
+      <span class="n">indenter_mesh_Ns</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="n">indenter_mesh_Nf</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> 
+      <span class="n">indenter_mesh_Nsweep</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="n">mesh_Nsweep</span> <span class="o">=</span> <span class="n">Nsweep</span><span class="p">,</span>
+      <span class="n">indenter_half_angle</span> <span class="o">=</span> <span class="n">equivalent_half_angle</span><span class="p">(</span><span class="n">half_angle</span><span class="p">,</span> <span class="n">sweep_angle</span><span class="p">),</span>
+      <span class="n">frames</span> <span class="o">=</span> <span class="n">frames</span> <span class="p">)</span>
+    <span class="n">db_manager</span><span class="o">.</span><span class="n">add_simulation</span><span class="p">(</span><span class="n">simu</span><span class="p">)</span>
+    
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    print &#39;* Berkovich indenter&#39;</span>
+<span class="sd">    simu = Simulation( </span>
+<span class="sd">      rigid_indenter= True, </span>
+<span class="sd">      indenter_pyramid = True,</span>
+<span class="sd">      three_dimensional = True,</span>
+<span class="sd">      sweep_angle = sweep_angle,</span>
+<span class="sd">      sample_mat_type = &#39;druckerprager&#39;,</span>
+<span class="sd">      sample_mat_args = {&#39;young_modulus&#39;: 1., &#39;poisson_ratio&#39;: 0.3, &#39;yield_stress&#39;: ey[i] * E_s, &#39;beta&#39;: beta[j], &#39;psi&#39;:beta[j], &#39;k&#39;: 1. },</span>
+<span class="sd">      indenter_mat_type = &#39;elastic&#39;,</span>
+<span class="sd">      indenter_mat_args = {&#39;young_modulus&#39;: 1., &#39;poisson_ratio&#39;: 0.3},</span>
+<span class="sd">      mesh_Na = Na_berk, </span>
+<span class="sd">      mesh_Nb = Nb_berk, </span>
+<span class="sd">      mesh_Ns = Ns_berk,</span>
+<span class="sd">      mesh_Nf = Nf_berk, </span>
+<span class="sd">      mesh_Nsweep = Nsweep,</span>
+<span class="sd">      indenter_mesh_Na = 2, </span>
+<span class="sd">      indenter_mesh_Nb = 2, </span>
+<span class="sd">      indenter_mesh_Ns = 1,</span>
+<span class="sd">      indenter_mesh_Nf = 2, </span>
+<span class="sd">      indenter_mesh_Nsweep = 2,</span>
+<span class="sd">      indenter_half_angle = half_angle,</span>
+<span class="sd">      sample_mesh_disp = False,</span>
+<span class="sd">      frames = frames )</span>
+<span class="sd">    db_manager.add_simulation(simu)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+  
+<span class="c">#--------------------------</span>
+<span class="c"># HOLLOMON SIMULATIONS</span>
+<span class="c">#--------------------------</span>
+<span class="c">#ey  = [0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.01] # Yield strain</span>
+<span class="n">ey</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.001</span><span class="p">]</span>
+<span class="c">#n = [0., .1, .2, .3, .4]</span>
+<span class="n">n</span> <span class="o">=</span> <span class="p">[</span><span class="o">.</span><span class="mi">3</span><span class="p">,</span> <span class="o">.</span><span class="mi">4</span><span class="p">]</span>
+
+<span class="k">print</span> <span class="s">&#39;LOADING HOLLOMON SIMULATIONS&#39;</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ey</span><span class="p">)):</span>
+  <span class="k">print</span> <span class="s">&#39;* epsilon_y = &#39;</span><span class="p">,</span> <span class="n">ey</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+  <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">n</span><span class="p">)):</span>
+    <span class="k">print</span> <span class="s">&#39;* n = &#39;</span><span class="p">,</span> <span class="n">n</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>  
+    <span class="k">print</span> <span class="s">&#39;* Conical indenter&#39;</span>
+    <span class="n">simu</span> <span class="o">=</span> <span class="n">Simulation</span><span class="p">(</span> 
+      <span class="n">rigid_indenter</span><span class="o">=</span> <span class="bp">True</span><span class="p">,</span> 
+      <span class="n">indenter_pyramid</span> <span class="o">=</span> <span class="bp">True</span><span class="p">,</span>
+      <span class="n">three_dimensional</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
+      <span class="n">sweep_angle</span> <span class="o">=</span> <span class="n">sweep_angle</span><span class="p">,</span>
+      <span class="n">sample_mat_type</span> <span class="o">=</span> <span class="s">&#39;hollomon&#39;</span><span class="p">,</span>
+      <span class="n">sample_mat_args</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;young_modulus&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">,</span> <span class="s">&#39;poisson_ratio&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s">&#39;yield_stress&#39;</span><span class="p">:</span> <span class="n">ey</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">E_s</span><span class="p">,</span> <span class="s">&#39;hardening&#39;</span><span class="p">:</span> <span class="n">n</span><span class="p">[</span><span class="n">j</span><span class="p">]},</span>
+      <span class="n">indenter_mat_type</span> <span class="o">=</span> <span class="s">&#39;elastic&#39;</span><span class="p">,</span>
+      <span class="n">indenter_mat_args</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;young_modulus&#39;</span><span class="p">:</span> <span class="mf">1.</span><span class="p">,</span> <span class="s">&#39;poisson_ratio&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">},</span>
+      <span class="n">mesh_Na</span> <span class="o">=</span> <span class="n">Na_cone</span><span class="p">,</span> 
+      <span class="n">mesh_Nb</span> <span class="o">=</span> <span class="n">Nb_cone</span><span class="p">,</span> 
+      <span class="n">mesh_Ns</span> <span class="o">=</span> <span class="n">Ns_cone</span><span class="p">,</span>
+      <span class="n">mesh_Nf</span> <span class="o">=</span> <span class="n">Nf_cone</span><span class="p">,</span> 
+      <span class="n">indenter_mesh_Na</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> 
+      <span class="n">indenter_mesh_Nb</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> 
+      <span class="n">indenter_mesh_Ns</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="n">indenter_mesh_Nf</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> 
+      <span class="n">indenter_mesh_Nsweep</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="n">mesh_Nsweep</span> <span class="o">=</span> <span class="n">Nsweep</span><span class="p">,</span>
+      <span class="n">indenter_half_angle</span> <span class="o">=</span> <span class="n">equivalent_half_angle</span><span class="p">(</span><span class="n">half_angle</span><span class="p">,</span> <span class="n">sweep_angle</span><span class="p">),</span>
+      <span class="n">frames</span> <span class="o">=</span> <span class="n">frames</span> <span class="p">)</span>
+    <span class="n">db_manager</span><span class="o">.</span><span class="n">add_simulation</span><span class="p">(</span><span class="n">simu</span><span class="p">)</span>
+  
+  <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    print &#39;* Berkovich indenter&#39;</span>
+<span class="sd">    simu = Simulation( </span>
+<span class="sd">      rigid_indenter= True, </span>
+<span class="sd">      indenter_pyramid = True,</span>
+<span class="sd">      three_dimensional = True,</span>
+<span class="sd">      sweep_angle = sweep_angle,</span>
+<span class="sd">      sample_mat_type = &#39;hollomon&#39;,</span>
+<span class="sd">      sample_mat_args = {&#39;young_modulus&#39;: 1., &#39;poisson_ratio&#39;: 0.3, &#39;yield_stress&#39;: ey[i] * E_s, &#39;hardening&#39;: n[j]},</span>
+<span class="sd">      indenter_mat_type = &#39;elastic&#39;,</span>
+<span class="sd">      indenter_mat_args = {&#39;young_modulus&#39;: 1., &#39;poisson_ratio&#39;: 0.3},</span>
+<span class="sd">      mesh_Na = Na_berk, </span>
+<span class="sd">      mesh_Nb = Nb_berk, </span>
+<span class="sd">      mesh_Ns = Ns_berk,</span>
+<span class="sd">      mesh_Nf = Nf_berk, </span>
+<span class="sd">      mesh_Nsweep = Nsweep,</span>
+<span class="sd">      indenter_mesh_Na = 2, </span>
+<span class="sd">      indenter_mesh_Nb = 2, </span>
+<span class="sd">      indenter_mesh_Ns = 1,</span>
+<span class="sd">      indenter_mesh_Nf = 2, </span>
+<span class="sd">      indenter_mesh_Nsweep = 2,</span>
+<span class="sd">      indenter_half_angle = half_angle,</span>
+<span class="sd">      sample_mesh_disp = False,</span>
+<span class="sd">      frames = frames )</span>
+<span class="sd">    db_manager.add_simulation(simu)</span>
+<span class="sd">   &#39;&#39;&#39;</span>
+   
+</pre></div>
+</div>
+<p>After executing loader, we see that all simulation have been entered in the database:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">execfile</span><span class="p">(</span><span class="s">&#39;loader.py&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then we just launch the simulations using <a class="reference download internal" href="_downloads/launcher.py"><tt class="xref download docutils literal"><span class="pre">launcher.py</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Setting up the database</span>
+<span class="nb">execfile</span><span class="p">(</span><span class="s">&#39;settings.py&#39;</span><span class="p">)</span>
+
+<span class="c"># Running all simulations</span>
+<span class="n">db_manager</span><span class="o">.</span><span class="n">run_all</span><span class="p">()</span>
+<span class="c">#db_manager.run_next()</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="nb">execfile</span><span class="p">(</span><span class="s">&#39;launcher.py&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And now after these fast simulations it&#8217;s time to collect some results or perform some reverse analysis. Here is a very brief example of ploting <a class="reference download internal" href="_downloads/basic_plot_DP.py"><tt class="xref download docutils literal"><span class="pre">basic_plot_DP.py</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># Importing packages</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
+<span class="kn">from</span> <span class="nn">scipy.spatial</span> <span class="kn">import</span> <span class="n">Delaunay</span>
+
+<span class="c"># Setting up the database</span>
+<span class="nb">execfile</span><span class="p">(</span><span class="s">&#39;settings.py&#39;</span><span class="p">)</span>
+
+
+<span class="c"># creating some shortcuts</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">db_manager</span>     <span class="c"># database manager</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">db_manager</span><span class="o">.</span><span class="n">cls</span> <span class="c"># useful to call Simulation attributs </span>
+
+<span class="c"># Load simulations</span>
+<span class="n">simus</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">query</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">completed</span> <span class="o">==</span> <span class="bp">True</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">sample_mat_type</span> <span class="o">==</span> <span class="s">&#39;druckerprager&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+
+<span class="c">#--------------------------</span>
+<span class="c"># PLOTING CONSTRAINT FACTOR</span>
+<span class="c">#--------------------------</span>
+
+<span class="c"># Getting primary data</span>
+<span class="n">sy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;yield_stress&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simus</span><span class="p">])</span>
+<span class="n">E</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;young_modulus&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simus</span><span class="p">])</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">sample_mat_args</span><span class="p">[</span><span class="s">&#39;beta&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simus</span><span class="p">])</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">load_prefactor</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simus</span><span class="p">])</span>
+<span class="n">Ac</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">contact_area</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simus</span><span class="p">])</span>
+<span class="n">hmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">max_disp</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simus</span><span class="p">])</span>
+<span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">indenter_half_angle</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simus</span><span class="p">])</span>
+<span class="n">wirr_wtot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">irreversible_work_ratio</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">simus</span><span class="p">])</span>
+
+<span class="c"># Building secondary data</span>
+<span class="n">ey</span> <span class="o">=</span> <span class="n">sy</span><span class="o">/</span><span class="n">E</span>
+<span class="n">H</span> <span class="o">=</span> <span class="n">C</span><span class="o">/</span><span class="n">Ac</span>
+<span class="n">hch</span> <span class="o">=</span> <span class="n">Ac</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">tan</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">phi</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c"># Building Delaunay triangular connectivity</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">ey</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">beta</span>
+<span class="n">points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> 
+<span class="n">conn</span> <span class="o">=</span> <span class="n">Delaunay</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="o">.</span><span class="n">vertices</span>
+
+<span class="c"># For checking purpose, let&#39;s plot the generated mesh. You may see that the mesh is self improving has the simulations complete (this is quite nice).</span>
+
+
+<span class="c"># Ploting stuff</span>
+<span class="n">title</span> <span class="o">=</span> <span class="s">&#39;Playing with Drucker-Prager law&#39;</span>
+
+<span class="n">X</span><span class="p">,</span> <span class="n">xlabel</span> <span class="o">=</span> <span class="n">C</span><span class="p">,</span> <span class="s">r&#39;$C$&#39;</span>
+<span class="c">#X, xlabel = ey, r&#39;$\sigma_{yc}/E$&#39;</span>
+<span class="c">#X, xlabel = wirr_wtot, r&#39;$W_{irr}/W_{tot}$&#39;</span>
+<span class="n">Y</span><span class="p">,</span> <span class="n">ylabel</span> <span class="o">=</span> <span class="n">hch</span><span class="p">,</span> <span class="s">&#39;$\sqrt{A_c / A_{app}}$&#39;</span>
+<span class="c">#Y, ylabel = C, &#39;$C/E$&#39;</span>
+
+<span class="n">Z</span><span class="p">,</span> <span class="n">zlabel</span> <span class="o">=</span> <span class="n">beta</span><span class="p">,</span> <span class="s">r&#39;$\beta = </span><span class="si">%1.1f</span><span class="s">$&#39;</span>
+<span class="n">Zlevels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">Z</span><span class="p">))</span>
+<span class="n">Z2</span><span class="p">,</span> <span class="n">z2label</span> <span class="o">=</span> <span class="n">ey</span><span class="p">,</span> <span class="s">r&#39;$\epsilon_y = </span><span class="si">%1.3f</span><span class="s">$&#39;</span>
+<span class="n">Z2levels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">Z2</span><span class="p">))</span>
+
+<span class="c"># For checking purpose, let&#39;s plot the generated mesh. You may see that the mesh is self improving has the simulations complete (this is quite nice).</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">triplot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Delaunay Mesh&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;y&#39;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">triplot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">conn</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&#39;Deformed Delaunay Mesh&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&#39;X&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&#39;Y&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&#39;plots/basic_plot_mesh_DP.png&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="n">ylabel</span><span class="p">)</span>
+<span class="c">#plt.triplot(X,Y,conn)</span>
+<span class="c">#plt.tricontourf(X,Y,conn,Z, Zlevels)</span>
+<span class="n">cont</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">tricontour</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">conn</span><span class="p">,</span><span class="n">Z</span><span class="p">,</span> <span class="n">Zlevels</span><span class="p">,</span> <span class="n">colors</span> <span class="o">=</span> <span class="s">&#39;blue&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span><span class="n">cont</span><span class="p">,</span> <span class="n">fmt</span> <span class="o">=</span> <span class="n">zlabel</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">cont</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">tricontour</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">conn</span><span class="p">,</span><span class="n">Z2</span><span class="p">,</span> <span class="n">Z2levels</span><span class="p">,</span> <span class="n">colors</span> <span class="o">=</span> <span class="s">&#39;red&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span><span class="n">cont</span><span class="p">,</span> <span class="n">fmt</span> <span class="o">=</span> <span class="n">z2label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">inline</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">&#39;plots/basic_plot_DP.png&#39;</span><span class="p">)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">#--------------------------</span>
+<span class="sd"># PLOTING SECTIONS</span>
+<span class="sd">#--------------------------</span>
+<span class="sd">plt.figure(0)</span>
+<span class="sd">plt.clf()</span>
+<span class="sd">plt.gca().set_aspect(&#39;equal&#39;)</span>
+<span class="sd">rmax = 6.</span>
+<span class="sd">x = np.linspace(0., rmax, 128)</span>
+<span class="sd">y = np.zeros_like(x)</span>
+<span class="sd">ey = np.array(list(set(ey)))</span>
+<span class="sd">ey.sort()</span>
+<span class="sd">for s in simus:</span>
+<span class="sd">  cd = s.contact_data[2][-1]</span>
+<span class="sd">  alt, press = cd.interpolate(x, y, method = &#39;linear&#39;)</span>
+<span class="sd">  ey_s = s.sample_mat_args[&#39;yield_stress&#39;]</span>
+<span class="sd">  loc = np.where(ey==ey_s)[0][0]</span>
+<span class="sd">  alt += -loc </span>
+<span class="sd">  plt.plot(x, alt)</span>
+<span class="sd">plt.show()</span>
+<span class="sd">&#39;&#39;&#39;</span>
+</pre></div>
+</div>
+<img alt="_images/basic_plot_mesh_DP.png" src="_images/basic_plot_mesh_DP.png" />
+<img alt="_images/basic_plot_DP.png" src="_images/basic_plot_DP.png" />
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Advanced Examples</a><ul>
+<li><a class="reference internal" href="#indentation">Indentation</a><ul>
+<li><a class="reference internal" href="#d-3d-multi-material-indentation">2D / 3D , multi material indentation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="misc.html"
+                        title="previous chapter">Miscellaneous</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/advanced_examples.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="misc.html" title="Miscellaneous"
+             >previous</a> |</li>
+        <li><a href="index.html">abapy 2.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Ludovic Charleux.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
