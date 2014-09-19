@@ -1122,11 +1122,233 @@
 </pre></div>
 </div>
 <p>Gives:</p>
-<img alt="example_code/indentation/workdir/indentation_field.png" src="example_code/indentation/workdir/indentation_field.png" />
-<img alt="example_code/indentation/workdir/indentation_load-disp.png" src="example_code/indentation/workdir/indentation_load-disp.png" />
+<img alt="_images/indentation_field.png" src="_images/indentation_field.png" />
+<img alt="_images/indentation_load-disp.png" src="_images/indentation_load-disp.png" />
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">In order to used abaqus Python, you have to build a post processing script that is executed in <tt class="docutils literal"><span class="pre">abaqus</span> <span class="pre">python</span></tt>. Here is an example <tt class="xref download docutils literal"><span class="pre">abqpostproc.py</span></tt>:</p>
+<p class="last">In order to used abaqus Python, you have to build a post processing script that is executed in <tt class="docutils literal"><span class="pre">abaqus</span> <span class="pre">python</span></tt>. Here is an example <a class="reference download internal" href="_downloads/abqpostproc.py"><tt class="xref download docutils literal"><span class="pre">abqpostproc.py</span></tt></a>:</p>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># ABQPOSTPROC.PY</span>
+<span class="c"># Warning: executable only in abaqus abaqus viewer -noGUI,... not regular python.</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">GetFieldOutput_byRpt</span> <span class="k">as</span> <span class="n">gfo</span>
+<span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">GetVectorFieldOutput_byRpt</span> <span class="k">as</span> <span class="n">gvfo</span>
+<span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">GetTensorFieldOutput_byRpt</span> <span class="k">as</span> <span class="n">gtfo</span>
+<span class="kn">from</span> <span class="nn">abapy.postproc</span> <span class="kn">import</span> <span class="n">GetHistoryOutputByKey</span> <span class="k">as</span> <span class="n">gho</span>
+<span class="kn">from</span> <span class="nn">abapy.indentation</span> <span class="kn">import</span> <span class="n">Get_ContactData</span>
+<span class="kn">from</span> <span class="nn">abapy.misc</span> <span class="kn">import</span> <span class="n">dump</span>
+<span class="kn">from</span> <span class="nn">odbAccess</span> <span class="kn">import</span> <span class="n">openOdb</span>
+<span class="kn">from</span> <span class="nn">abaqusConstants</span> <span class="kn">import</span> <span class="n">JOB_STATUS_COMPLETED_SUCCESSFULLY</span>
+
+
+
+<span class="c"># Odb opening  </span>
+<span class="n">file_name</span> <span class="o">=</span> <span class="s">&#39;indentation&#39;</span>
+<span class="n">odb</span> <span class="o">=</span> <span class="n">openOdb</span><span class="p">(</span><span class="n">file_name</span> <span class="o">+</span> <span class="s">&#39;.odb&#39;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c"># Check job status:</span>
+<span class="n">job_status</span> <span class="o">=</span> <span class="n">odb</span><span class="o">.</span><span class="n">diagnosticData</span><span class="o">.</span><span class="n">jobStatus</span>
+
+<span class="k">if</span> <span class="n">job_status</span> <span class="o">==</span> <span class="n">JOB_STATUS_COMPLETED_SUCCESSFULLY</span><span class="p">:</span>
+  <span class="n">data</span><span class="p">[</span><span class="s">&#39;completed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span> 
+  <span class="c"># Field Outputs</span>
+  <span class="n">data</span><span class="p">[</span><span class="s">&#39;field&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="n">fo</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;field&#39;</span><span class="p">]</span>
+  <span class="n">fo</span><span class="p">[</span><span class="s">&#39;Uind&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">gvfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_INDENTER&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;U&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">),</span>
+    <span class="n">gvfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_INDENTER&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;U&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)]</span>
+  
+  <span class="n">fo</span><span class="p">[</span><span class="s">&#39;U&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">gvfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;U&#39;</span><span class="p">,</span> 
+      <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">),</span>
+    <span class="n">gvfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;U&#39;</span><span class="p">,</span> 
+      <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)]</span>
+      
+  <span class="n">fo</span><span class="p">[</span><span class="s">&#39;S&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">gtfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> 
+      <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">),</span>
+    <span class="n">gtfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)]</span>
+  
+  <span class="n">fo</span><span class="p">[</span><span class="s">&#39;Sind&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">gtfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_INDENTER&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> 
+      <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">),</span>
+    <span class="n">gtfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;S&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)]</span>
+       
+  <span class="n">fo</span><span class="p">[</span><span class="s">&#39;LE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">gtfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;LE&#39;</span><span class="p">,</span> 
+      <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">),</span>
+    <span class="n">gtfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;LE&#39;</span><span class="p">,</span> 
+      <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)]</span> 
+      
+  <span class="n">fo</span><span class="p">[</span><span class="s">&#39;EE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">gtfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;EE&#39;</span><span class="p">,</span> 
+      <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">),</span>
+    <span class="n">gtfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;EE&#39;</span><span class="p">,</span> 
+      <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)]</span>     
+  
+  <span class="n">fo</span><span class="p">[</span><span class="s">&#39;PE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">gtfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;PE&#39;</span><span class="p">,</span> 
+      <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">),</span>
+    <span class="n">gtfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;PE&#39;</span><span class="p">,</span> 
+      <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)]</span> 
+  
+  <span class="n">fo</span><span class="p">[</span><span class="s">&#39;PEEQ&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">gfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;PEEQ&#39;</span><span class="p">,</span> 
+      <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">),</span>
+    <span class="n">gfo</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> 
+      <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> 
+      <span class="n">step</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="n">frame</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">original_position</span> <span class="o">=</span> <span class="s">&#39;INTEGRATION_POINT&#39;</span><span class="p">,</span> 
+      <span class="n">new_position</span> <span class="o">=</span> <span class="s">&#39;NODAL&#39;</span><span class="p">,</span> 
+      <span class="n">position</span> <span class="o">=</span> <span class="s">&#39;node&#39;</span><span class="p">,</span>
+      <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;PEEQ&#39;</span><span class="p">,</span> 
+      <span class="n">sub_set_type</span> <span class="o">=</span> <span class="s">&#39;element&#39;</span><span class="p">,</span> 
+      <span class="n">delete_report</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)]</span> 
+  <span class="c"># History Outputs</span>
+  <span class="n">data</span><span class="p">[</span><span class="s">&#39;history&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span> 
+  <span class="n">ho</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;history&#39;</span><span class="p">]</span>
+  <span class="n">ref_node</span> <span class="o">=</span> <span class="n">odb</span><span class="o">.</span><span class="n">rootAssembly</span><span class="o">.</span><span class="n">instances</span><span class="p">[</span><span class="s">&#39;I_INDENTER&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nodeSets</span><span class="p">[</span><span class="s">&#39;REF_NODE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label</span>
+  <span class="n">ho</span><span class="p">[</span><span class="s">&#39;force&#39;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">gho</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span><span class="s">&#39;RF2&#39;</span><span class="p">)[</span><span class="s">&#39;Node I_INDENTER.&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ref_node</span><span class="p">)]</span> <span class="c"># GetFieldOutputByKey returns all the occurences of the required output (here &#39;RF2&#39;) and stores it in a dict. Each dict key refers to a location. Here we have to specify the location (&#39;Node I_INDENTER.1&#39;) mainly for displacement which has been requested at several locations.</span>
+  <span class="n">ho</span><span class="p">[</span><span class="s">&#39;disp&#39;</span><span class="p">]</span> <span class="o">=</span>   <span class="n">gho</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span><span class="s">&#39;U2&#39;</span><span class="p">)[</span><span class="s">&#39;Node I_INDENTER.&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">ref_node</span><span class="p">)]</span>
+  <span class="n">tip_node</span> <span class="o">=</span> <span class="n">odb</span><span class="o">.</span><span class="n">rootAssembly</span><span class="o">.</span><span class="n">instances</span><span class="p">[</span><span class="s">&#39;I_INDENTER&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nodeSets</span><span class="p">[</span><span class="s">&#39;TIP_NODE&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">label</span>
+  <span class="n">ho</span><span class="p">[</span><span class="s">&#39;tip_penetration&#39;</span><span class="p">]</span> <span class="o">=</span>   <span class="n">gho</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span><span class="s">&#39;U2&#39;</span><span class="p">)[</span><span class="s">&#39;Node I_INDENTER.&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">tip_node</span><span class="p">)]</span>
+  <span class="n">ho</span><span class="p">[</span><span class="s">&#39;allse&#39;</span><span class="p">]</span> <span class="o">=</span>   <span class="n">gho</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span><span class="s">&#39;ALLSE&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="n">ho</span><span class="p">[</span><span class="s">&#39;allpd&#39;</span><span class="p">]</span> <span class="o">=</span>   <span class="n">gho</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span><span class="s">&#39;ALLPD&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="n">ho</span><span class="p">[</span><span class="s">&#39;allfd&#39;</span><span class="p">]</span> <span class="o">=</span>   <span class="n">gho</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span><span class="s">&#39;ALLFD&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="n">ho</span><span class="p">[</span><span class="s">&#39;allwk&#39;</span><span class="p">]</span> <span class="o">=</span>   <span class="n">gho</span><span class="p">(</span><span class="n">odb</span><span class="p">,</span><span class="s">&#39;ALLWK&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="c">#ho[&#39;carea&#39;] =  gho(odb,&#39;CAREA    ASSEMBLY_I_SAMPLE_SURFACE_FACES/ASSEMBLY_I_INDENTER_SURFACE_FACES&#39;).values()[0]</span>
+  
+  <span class="c"># CONTACT DATA PROCESSING</span>
+  <span class="n">ho</span><span class="p">[</span><span class="s">&#39;contact&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Get_ContactData</span><span class="p">(</span><span class="n">odb</span> <span class="o">=</span> <span class="n">odb</span><span class="p">,</span> <span class="n">instance</span> <span class="o">=</span> <span class="s">&#39;I_SAMPLE&#39;</span><span class="p">,</span> <span class="n">node_set</span> <span class="o">=</span> <span class="s">&#39;TOP_NODES&#39;</span><span class="p">)</span>
+ 
+<span class="k">else</span><span class="p">:</span>
+  <span class="n">data</span><span class="p">[</span><span class="s">&#39;completed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="c"># Closing and dumping</span>
+<span class="n">odb</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">file_name</span><span class="o">+</span><span class="s">&#39;.pckl&#39;</span><span class="p">)</span>
+</pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
